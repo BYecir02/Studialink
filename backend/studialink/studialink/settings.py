@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'core',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +42,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'channels',
-    'core',
+    'rest_framework.authtoken',
+    'django.contrib.sites',
 ]
 
 MIDDLEWARE = [
@@ -133,9 +135,21 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',  # On utilisera des tokens
+    ],
+}
 
 CHANNEL_LAYERS = {
     'default': {
@@ -147,3 +161,19 @@ CHANNEL_LAYERS = {
 }
 
 ASGI_APPLICATION = 'studialink.asgi.application'
+
+AUTH_USER_MODEL = 'core.Utilisateur'
+
+# Email configuration (développement)
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'badirouyecir@gmail.com'
+EMAIL_HOST_PASSWORD = 'wvdvnsksutsnyske'
+
+ACCOUNT_ADAPTER = 'core.adapters.UniversityEmailAdapter'
+
+SITE_ID = 1

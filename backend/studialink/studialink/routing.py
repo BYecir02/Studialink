@@ -1,12 +1,10 @@
-# nom_projet/routing.py
 from django.urls import re_path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
+import core.routing
 
 application = ProtocolTypeRouter({
     'websocket': AuthMiddlewareStack(
-        URLRouter([
-            # Ajouter les routes WebSocket plus tard
-        ])
+        URLRouter(core.routing.websocket_urlpatterns)
     ),
 })
