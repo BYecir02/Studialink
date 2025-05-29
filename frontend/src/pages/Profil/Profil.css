@@ -1,0 +1,32 @@
+.profil-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 2rem;
+  text-align: center;
+}
+
+.profil-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.profil-avatar {
+  background: #e3eafc;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.profil-info p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}

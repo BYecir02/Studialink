@@ -4,6 +4,7 @@ import LoginForm from './components/Login/LoginForm';
 import RegisterForm from './components/Register/RegisterForm';
 import Layout from './pages/Layout/Layout';
 import Accueil from './pages/Accueil/Accueil';
+import Profil from './pages/Profil/Profil';
 import './assets/global.css';
 
 function App() {
@@ -88,7 +89,7 @@ function App() {
       <Routes>
         <Route element={<Layout user={user} onLogout={handleLogout} />}>
           <Route path="/" element={<Accueil user={user} />} />
-          {/* Ajoute ici d'autres routes/pages */}
+          <Route path="/profil" element={<Profil user={user} />} />
         </Route>
       </Routes>
     </Router>

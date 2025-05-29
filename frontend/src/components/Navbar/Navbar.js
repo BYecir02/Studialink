@@ -1,34 +1,48 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+import './Navbar.css';
 
 export default function Navbar({ user, onLogout }) {
   return (
-    <nav style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      background: '#1976d2',
-      color: '#fff',
-      padding: '1rem 2rem'
-    }}>
-      <span style={{ fontWeight: 700, fontSize: '1.5rem', letterSpacing: '2px' }}>
+    <nav className="navbar">
+      <span className="navbar-title">
         STUDIALINK
       </span>
-      <div>
+      <div className="navbar-links">
+        <NavLink
+          to="/"
+          className={({ isActive }) => "navbar-link" + (isActive ? " active" : "")}
+        >
+          Accueil
+        </NavLink>
+        <NavLink
+          to="/creer"
+          className={({ isActive }) => "navbar-link" + (isActive ? " active" : "")}
+        >
+          Créer
+        </NavLink>
+        <NavLink
+          to="/rechercher"
+          className={({ isActive }) => "navbar-link" + (isActive ? " active" : "")}
+        >
+          Rechercher
+        </NavLink>
+        <NavLink
+          to="/bibliotheque"
+          className={({ isActive }) => "navbar-link" + (isActive ? " active" : "")}
+        >
+          Bibliothèque
+        </NavLink>
+        <NavLink
+          to="/profil"
+          className={({ isActive }) => "navbar-link" + (isActive ? " active" : "")}
+        >
+          Profil
+        </NavLink>
         {user && (
-          <>
-            <span style={{ marginRight: '1rem' }}>{user.prenom} {user.nom}</span>
-            <button onClick={onLogout} style={{
-              background: '#fff',
-              color: '#1976d2',
-              border: 'none',
-              borderRadius: '5px',
-              padding: '0.5rem 1rem',
-              fontWeight: 'bold',
-              cursor: 'pointer'
-            }}>
-              Déconnexion
-            </button>
-          </>
+          <button onClick={onLogout} className="navbar-logout">
+            Déconnexion
+          </button>
         )}
       </div>
     </nav>
