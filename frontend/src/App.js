@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import LoginForm from './components/Login/LoginForm';
 import RegisterForm from './components/Register/RegisterForm';
+import Accueil from './components/Accueil';
 import './assets/global.css';
 
 function App() {
@@ -13,17 +14,26 @@ function App() {
     setUser(user);
   };
 
+  const handleLogout = () => {
+    setToken(null);
+    setUser(null);
+  };
+
   if (token) {
-    return (
-      <div>
-        <h2>Bienvenue {user.prenom} {user.nom} !</h2>
-        <p>Vous êtes connecté.</p>
-      </div>
-    );
+    return <Accueil user={user} onLogout={handleLogout} />;
   }
 
   return (
     <div>
+      <h1 style={{
+        textAlign: 'center',
+        color: '#1976d2',
+        letterSpacing: '2px',
+        margin: '2rem 0 1rem 0',
+        fontWeight: 700
+      }}>
+        STUDIALINK
+      </h1>
       {!showRegister ? (
         <>
           <LoginForm onLogin={handleLogin} />
