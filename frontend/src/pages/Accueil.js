@@ -5,7 +5,7 @@ export default function Accueil({ user }) {
     <div style={{ maxWidth: 800, margin: '2rem auto', textAlign: 'center' }}>
       <h2>Bienvenue {user.prenom} {user.nom} !</h2>
       <p>Vous êtes connecté.</p>
-      {/* Ajoute ici le contenu principal de la page d'accueil */}
+      {/* Contenu principal de la page d'accueil */}
     </div>
   );
 }
