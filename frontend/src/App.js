@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginForm from './components/Login/LoginForm';
 import RegisterForm from './components/Register/RegisterForm';
-import Layout from './pages/Layout';
-import Accueil from './pages/Accueil';
+import Layout from './pages/Layout/Layout';
+import Accueil from './pages/Accueil/Accueil';
 import './assets/global.css';
 
 function App() {
