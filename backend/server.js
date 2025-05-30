@@ -22,6 +22,9 @@ app.use('/api/filieres', filiereRoutes);
 const sessionRoutes = require('./routes/sessions');
 app.use('/api/sessions', sessionRoutes);
 
+const moduleRoutes = require('./routes/modules');
+app.use('/api/modules', moduleRoutes);
+
 // Routes (à définir plus tard)
 app.get('/', (req, res) => {
   res.send('API en ligne !');

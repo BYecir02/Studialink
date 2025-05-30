@@ -28,7 +28,7 @@ export default function Navbar({ user, onLogout }) {
           <span className="navbar-link-text">Accueil</span>
         </NavLink>
         <NavLink
-          to="/creer"
+          to="/creer-session"
           className={({ isActive }) => "navbar-link" + (isActive ? " active" : "")}
           title="Créer"
         >
