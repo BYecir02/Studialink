@@ -1,4 +1,5 @@
 const { SessionTravail, Module, Utilisateur, ParticipantSession } = require('../models');
+const { Op } = require('sequelize');
 
 exports.getAll = async (req, res) => {
   try {
@@ -110,5 +111,23 @@ exports.addParticipant = async (req, res) => {
     res.status(201).json({ message: 'Participant ajouté', participant });
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+exports.search = async (req, res) => {
+  const { titre, matiere, en_ligne, date } = req.query;
+  const where = {};
+  if (titre) where.titre = { [Op.like]: `%${titre}%` };
+  if (en_ligne !== undefined && en_ligne !== '') where.en_ligne = en_ligne;
+  if (date) where.date_heure = { [Op.gte]: new Date(date) };
+  if (matiere) where.moduleId = matiere;
+  try {
+    const sessions = await SessionTravail.findAll({
+      where,
+      include: [{ model: Module }, { model: Utilisateur, as: 'createur' }]
+    });
+    res.json(sessions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

@@ -36,7 +36,7 @@ export default function Navbar({ user, onLogout }) {
           <span className="navbar-link-text">Créer</span>
         </NavLink>
         <NavLink
-          to="/rechercher"
+          to="/recherche"
           className={({ isActive }) => "navbar-link" + (isActive ? " active" : "")}
           title="Rechercher"
         >
