@@ -30,28 +30,33 @@ export default function Accueil({ user }) {
 
   return (
     <div className="accueil-container">
-      <h2>Bienvenue {user.prenom} {user.nom} !</h2>
-      <p>Vous êtes connecté.</p>
+      <div className="accueil-header">
+        <h2>Bienvenue {user.prenom} {user.nom} !</h2>
+        <p>Vous êtes connecté.</p>
+      </div>
 
-      <section style={{ marginTop: '2rem', textAlign: 'left' }}>
+      <section className="accueil-section">
         <h3>Mes sessions de travail à venir</h3>
         {mesSessionsAVenir.length === 0 ? (
-          <p>Aucune session à venir.</p>
+          <p className="accueil-empty">Aucune session à venir.</p>
         ) : (
-          <ul>
+          <ul className="accueil-list">
             {mesSessionsAVenir.map(session => (
-              <li key={session.id} style={{ marginBottom: '1rem' }}>
-                <strong>{session.titre}</strong> — {session.Module?.nom}
-                <br />
-                <span>
-                  {new Date(session.date_heure).toLocaleString('fr-FR', {
-                    dateStyle: 'medium',
-                    timeStyle: 'short'
-                  })}
+              <li className="accueil-list-item" key={session.id}>
+                <span className="accueil-list-date">
+                  <i className="fas fa-calendar-alt"></i>
+                  {new Date(session.date_heure).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  &nbsp;à&nbsp;
+                  {new Date(session.date_heure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                 </span>
-                <br />
-                <span>
-                  Lieu : {session.en_ligne ? session.lien_en_ligne || 'En ligne' : session.lieu || session.salle || 'Non précisé'}
+                <span className="accueil-list-title">
+                  <i className="fas fa-book"></i> {session.titre}
+                </span>
+                <span className="accueil-list-module">
+                  <i className="fas fa-layer-group"></i> {session.Module?.nom}
+                </span>
+                <span className="accueil-list-lieu">
+                  <i className="fas fa-map-marker-alt"></i> {session.en_ligne ? session.lien_en_ligne || 'En ligne' : session.lieu || session.salle || 'Non précisé'}
                 </span>
               </li>
             ))}
@@ -59,29 +64,31 @@ export default function Accueil({ user }) {
         )}
       </section>
 
-      <section style={{ marginTop: '2rem', textAlign: 'left' }}>
+      <section className="accueil-section">
         <h3>Autres sessions publiques à venir</h3>
         {autresSessionsPubliques.length === 0 ? (
-          <p>Aucune session publique à venir.</p>
+          <p className="accueil-empty">Aucune session publique à venir.</p>
         ) : (
-          <ul>
+          <ul className="accueil-list">
             {autresSessionsPubliques.map(session => (
-              <li key={session.id} style={{ marginBottom: '1rem' }}>
-                <strong>{session.titre}</strong> — {session.Module?.nom}
-                <br />
-                <span>
-                  {new Date(session.date_heure).toLocaleString('fr-FR', {
-                    dateStyle: 'medium',
-                    timeStyle: 'short'
-                  })}
+              <li className="accueil-list-item" key={session.id}>
+                <span className="accueil-list-date">
+                  <i className="fas fa-calendar-alt"></i>
+                  {new Date(session.date_heure).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  &nbsp;à&nbsp;
+                  {new Date(session.date_heure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                 </span>
-                <br />
-                <span>
-                  Lieu : {session.en_ligne ? session.lien_en_ligne || 'En ligne' : session.lieu || session.salle || 'Non précisé'}
+                <span className="accueil-list-title">
+                  <i className="fas fa-book"></i> {session.titre}
                 </span>
-                <br />
-                <span style={{ fontSize: '0.95em', color: '#555' }}>
-                  Proposée par : {session.createur?.prenom} {session.createur?.nom}
+                <span className="accueil-list-module">
+                  <i className="fas fa-layer-group"></i> {session.Module?.nom}
+                </span>
+                <span className="accueil-list-lieu">
+                  <i className="fas fa-map-marker-alt"></i> {session.en_ligne ? session.lien_en_ligne || 'En ligne' : session.lieu || session.salle || 'Non précisé'}
+                </span>
+                <span className="accueil-list-createur">
+                  <i className="fas fa-user"></i> Proposé par {session.createur?.prenom} {session.createur?.nom}
                 </span>
               </li>
             ))}

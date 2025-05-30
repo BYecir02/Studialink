@@ -32,17 +32,18 @@ export default function Profil({ user }) {
   if (!user) return <div>Chargement...</div>;
 
   return (
-    <div className="profil-layout">
-      <div className="profil-card">
-        <div className="profil-picture">
+    <div className="profile-container">
+      {/* Colonne gauche : carte profil */}
+      <div className="profile-card">
+        <div className="profile-picture">
           <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.prenom}%20${user.nom}`} alt="Profil" />
-          <div className="profil-edit-picture" title="Changer la photo">
+          <div className="edit-picture" title="Changer la photo">
             <i className="fas fa-camera"></i>
           </div>
         </div>
         <h2>{user.prenom} {user.nom}</h2>
         <p>{user.filiere?.nom || 'Filière inconnue'}</p>
-        <div className="profil-stats">
+        <div className="profile-stats">
           <div className="stat-item">
             <div className="stat-value">{mesSessions.length}</div>
             <div className="stat-label">Sessions</div>
@@ -61,7 +62,8 @@ export default function Profil({ user }) {
         </button>
       </div>
 
-      <div className="profil-info">
+      {/* Colonne droite : infos et sessions */}
+      <div className="profile-info">
         <div className="section-title">
           Informations Personnelles
         </div>
@@ -98,7 +100,6 @@ export default function Profil({ user }) {
 
         <div className="section-title">Matières suivies</div>
         <div className="tags-container">
-          {/* À remplacer par les vraies matières si tu les as */}
           <span className="tag">Algorithmique</span>
           <span className="tag">Base de données</span>
           <span className="tag">Développement Web</span>
