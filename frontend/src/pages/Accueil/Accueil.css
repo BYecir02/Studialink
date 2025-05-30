@@ -94,3 +94,79 @@
     font-size: 0.98rem;
   }
 }
+
+.accueil-list-item {
+  background: #f6f8fa;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.06);
+  font-size: 1rem;
+}
+
+.accueil-list-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.accueil-list-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1976d2;
+  display: flex;
+  align-items: center;
+}
+
+.accueil-list-date {
+  color: #555;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.accueil-list-details {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* module, lieu, participants, créateur */
+  gap: 1.2rem;
+  font-size: 0.98rem;
+  color: #555;
+  width: 100%;
+}
+
+.accueil-list-details span,
+.accueil-list-main span {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accueil-list-participants i,
+.accueil-list-createur i,
+.accueil-list-module i,
+.accueil-list-lieu i {
+  margin-right: 6px;
+  color: #1976d2;
+}
+
+@media (max-width: 900px) {
+  .accueil-list-details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .accueil-list-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .accueil-list-details,
+  .accueil-list-main {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+}

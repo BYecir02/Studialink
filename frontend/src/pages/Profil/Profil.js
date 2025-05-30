@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Profil.css';
 
@@ -14,6 +15,7 @@ function formatDate(dateString) {
 
 export default function Profil({ user }) {
   const [sessions, setSessions] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -114,7 +116,13 @@ export default function Profil({ user }) {
               .filter(s => new Date(s.date_heure) > new Date())
               .sort((a, b) => new Date(a.date_heure) - new Date(b.date_heure))
               .map(session => (
-                <div className="session-card" key={session.id}>
+                <div
+                  className="session-card"
+                  key={session.id}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate(`/session/${session.id}`)}
+                  title="Voir le détail de la session"
+                >
                   <div className="session-date">
                     <span className="session-day">{new Date(session.date_heure).getDate()}</span>
                     <span className="session-month">{new Date(session.date_heure).toLocaleString('fr-FR', { month: 'short' })}</span>
@@ -122,8 +130,14 @@ export default function Profil({ user }) {
                   <div className="session-info">
                     <h3>{session.titre}</h3>
                     <div className="session-meta">
-                      <span><i className="fas fa-clock"></i> {new Date(session.date_heure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
-                      <span><i className="fas fa-map-marker-alt"></i> {session.en_ligne ? session.lien_en_ligne || 'En ligne' : session.lieu || session.salle || 'Non précisé'}</span>
+                      <span>
+                        <i className="fas fa-clock"></i>
+                        {new Date(session.date_heure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span>
+                        <i className="fas fa-map-marker-alt"></i>
+                        {session.en_ligne ? session.lien_en_ligne || 'En ligne' : session.lieu || session.salle || 'Non précisé'}
+                      </span>
                     </div>
                   </div>
                   <div className="session-actions">

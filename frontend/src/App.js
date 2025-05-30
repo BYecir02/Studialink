@@ -6,6 +6,8 @@ import Layout from './pages/Layout/Layout';
 import Accueil from './pages/Accueil/Accueil';
 import Profil from './pages/Profil/Profil';
 import CreerSession from './components/CreerSession/CreerSession';
+import SessionDetail from './pages/SessionDetail/SessionDetail';
+import EditionSession from './pages/EditionSession/EditionSession';
 import './assets/global.css';
 
 function App() {
@@ -92,6 +94,8 @@ function App() {
           <Route path="/" element={<Accueil user={user} />} />
           <Route path="/profil" element={<Profil user={user} />} />
           <Route path="/creer-session" element={<CreerSession user={user} />} />
+          <Route path="/session/:id" element={<SessionDetail user={user} />} />
+          <Route path="/session/:id/edit" element={<EditionSession user={user} />} />
         </Route>
       </Routes>
     </Router>

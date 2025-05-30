@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       SessionTravail.belongsTo(models.Utilisateur, { as: 'createur', foreignKey: 'createurId' });
       SessionTravail.belongsTo(models.Module, { foreignKey: 'moduleId' });
+      SessionTravail.hasMany(models.ParticipantSession, { as: 'participants', foreignKey: 'sessionTravailId' });
     }
   }
   SessionTravail.init({
