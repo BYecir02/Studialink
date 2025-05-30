@@ -1,4 +1,4 @@
-const { Utilisateur } = require('../models');
+const { Utilisateur, Filiere } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -16,7 +16,10 @@ exports.register = async (req, res) => {
       filiereId,
       date_inscription: new Date()
     });
-    res.status(201).json({ message: 'Utilisateur créé', user: { id: user.id, email: user.email } });
+    res.status(201).json({
+      message: 'Utilisateur créé',
+      user: { id: user.id, email: user.email }
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -25,13 +28,28 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, mot_de_passe } = req.body;
-    const user = await Utilisateur.findOne({ where: { email } });
+    // On inclut la filière dans la requête
+    const user = await Utilisateur.findOne({
+      where: { email },
+      include: [{ model: Filiere, attributes: ['id', 'nom', 'type'] }]
+    });
     if (!user) return res.status(401).json({ error: 'Utilisateur non trouvé' });
     const valid = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
     if (!valid) return res.status(401).json({ error: 'Mot de passe incorrect' });
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET, { expiresIn: '1d' });
     await user.update({ derniere_connexion: new Date() });
-    res.json({ token, user: { id: user.id, email: user.email, prenom: user.prenom, nom: user.nom } });
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        prenom: user.prenom,
+        nom: user.nom,
+        filiereId: user.filiereId,
+        filiere: user.Filiere, // On renvoie la filière complète
+        date_inscription: user.date_inscription
+      }
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
