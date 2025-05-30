@@ -33,6 +33,26 @@ export default function SessionDetail({ user }) {
           <button className="action-btn" onClick={() => navigate(`/session/${session.id}/edit`)}>
             <i className="fas fa-edit"></i> Modifier
           </button>
+          {session.createurId === user.id && (
+            <>
+              <button
+                className="action-btn danger"
+                style={{ marginLeft: 8, color: '#e74c3c' }}
+                onClick={async () => {
+                  if (window.confirm("Voulez-vous vraiment supprimer cette session ?")) {
+                    try {
+                      await axios.delete(`http://localhost:3000/api/sessions/${session.id}`);
+                      navigate('/'); // Redirige vers l'accueil après suppression
+                    } catch (err) {
+                      alert("Erreur lors de la suppression.");
+                    }
+                  }
+                }}
+              >
+                <i className="fas fa-trash"></i> Supprimer
+              </button>
+            </>
+          )}
           <button className="action-btn primary">
             <i className="fas fa-share-alt"></i> Partager
           </button>
@@ -194,19 +214,6 @@ export default function SessionDetail({ user }) {
               </div>
             ))}
           </div>
-          {/* Bouton visible uniquement pour le créateur */}
-          {user && session.createur && user.id === session.createur.id && (
-            <div className="section-title" style={{marginTop: 30}}>
-              Inviter des participants
-              <button
-                className="participant-btn primary"
-                style={{marginLeft: 12}}
-                onClick={() => {/* ouvrir une modal ou autre action */}}
-              >
-                <i className="fas fa-plus"></i> Ajouter
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

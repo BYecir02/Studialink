@@ -5,10 +5,21 @@ exports.getAll = async (req, res) => {
     const sessions = await SessionTravail.findAll({
       include: [
         { model: Module },
-        { model: Utilisateur, as: 'createur' }
+        { model: Utilisateur, as: 'createur' },
+        {
+          model: ParticipantSession,
+          as: 'participants',
+          include: [{ model: Utilisateur }]
+        }
       ]
     });
-    res.json(sessions);
+    // On simplifie la structure pour le front
+    const sessionsJson = sessions.map(session => {
+      const s = session.toJSON();
+      s.participants = s.participants.map(p => p.Utilisateur);
+      return s;
+    });
+    res.json(sessionsJson);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

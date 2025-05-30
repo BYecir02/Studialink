@@ -15,21 +15,45 @@ function formatDate(dateString) {
 
 export default function Profil({ user }) {
   const [sessions, setSessions] = useState([]);
+  const [participations, setParticipations] = useState([]);
   const navigate = useNavigate();
+
+  const handleDeleteSession = async (sessionId) => {
+    if (window.confirm("Voulez-vous vraiment supprimer cette session ?")) {
+      try {
+        await axios.delete(`http://localhost:3000/api/sessions/${sessionId}`);
+        setSessions(sessions.filter(s => s.id !== sessionId));
+      } catch (err) {
+        alert("Erreur lors de la suppression.");
+      }
+    }
+  };
 
   useEffect(() => {
     if (user) {
       axios.get('http://localhost:3000/api/sessions')
         .then(res => setSessions(res.data))
         .catch(() => setSessions([]));
+      axios.get(`http://localhost:3000/api/utilisateurs/${user.id}/sessions`)
+        .then(res => setParticipations(res.data))
+        .catch(() => setParticipations([]));
     }
   }, [user]);
 
-  const mesSessions = sessions.filter(s => s.createurId === user.id);
+  // Sessions créées par l'utilisateur
+  const sessionsCreees = sessions.filter(s => s.createurId === user.id);
 
-  // Statistiques fictives, à remplacer par des vraies si besoin
-  const nbDocs = 12;
-  const nbAmis = 7;
+  // Sessions où l'utilisateur est participant (hors celles qu'il a créées)
+  const sessionsParticipe = participations.filter(
+    s => s.createurId !== user.id
+  );
+
+  // Fusionne et retire les doublons (si besoin)
+  const mesSessions = [...sessionsCreees, ...sessionsParticipe];
+
+  // Statistiques réelles
+  const nbSessionsTotal = mesSessions.length;
+  const nbSessionsCreees = sessionsCreees.length;
 
   if (!user) return <div>Chargement...</div>;
 
@@ -47,16 +71,12 @@ export default function Profil({ user }) {
         <p>{user.filiere?.nom || 'Filière inconnue'}</p>
         <div className="profile-stats">
           <div className="stat-item">
-            <div className="stat-value">{mesSessions.length}</div>
-            <div className="stat-label">Sessions</div>
+            <div className="stat-value">{nbSessionsTotal}</div>
+            <div className="stat-label">Participations</div>
           </div>
           <div className="stat-item">
-            <div className="stat-value">{nbDocs}</div>
-            <div className="stat-label">Documents</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-value">{nbAmis}</div>
-            <div className="stat-label">Amis</div>
+            <div className="stat-value">{nbSessionsCreees}</div>
+            <div className="stat-label">Sessions créées</div>
           </div>
         </div>
         <button className="btn-edit-profile">
@@ -141,12 +161,34 @@ export default function Profil({ user }) {
                     </div>
                   </div>
                   <div className="session-actions">
-                    <div className="session-btn" title="Détails">
+                    <div className="session-btn" title="Détails" onClick={e => { e.stopPropagation(); navigate(`/session/${session.id}`); }}>
                       <i className="fas fa-info-circle"></i>
                     </div>
-                    <div className="session-btn primary" title="Chat">
+                    <div className="session-btn primary" title="Chat" onClick={e => { e.stopPropagation(); navigate(`/session/${session.id}/chat`); }}>
                       <i className="fas fa-comments"></i>
                     </div>
+                    {session.createurId === user.id && (
+                      <>
+                        <div
+                          className="session-btn"
+                          title="Modifier"
+                          onClick={e => { e.stopPropagation(); navigate(`/session/${session.id}/edit`); }}
+                        >
+                          <i className="fas fa-edit"></i>
+                        </div>
+                        <div
+                          className="session-btn danger"
+                          title="Supprimer"
+                          style={{ color: '#e74c3c' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleDeleteSession(session.id);
+                          }}
+                        >
+                          <i className="fas fa-trash"></i>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               ))
