@@ -1,0 +1,196 @@
+.biblio-container {
+  max-width: 1500px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.biblio-header {
+
+  margin-bottom: 2rem;
+}
+
+.biblio-header h2 {
+  color: #4e54c8;
+  margin-bottom: 0.5rem;
+}
+
+.biblio-header p {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.biblio-searchbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  justify-content: center;
+}
+
+.biblio-search-input {
+  flex: 1;
+  max-width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f6f8fa;
+}
+
+.biblio-search-btn {
+  background: #4e54c8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  height: 40px;
+  padding: 0 1.2rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.biblio-search-btn:hover {
+  background: #3f43b9;
+}
+
+.biblio-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.biblio-list-item {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0001;
+  margin-bottom: 1.2rem;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.biblio-list-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.biblio-list-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4e54c8;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.biblio-list-meta {
+  color: #6c757d;
+  font-size: 0.97rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.biblio-list-details {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  color: #444;
+  font-size: 0.97rem;
+}
+
+.biblio-list-desc {
+  color: #444;
+  font-size: 0.97rem;
+}
+
+.biblio-list-actions {
+  margin-top: 0.5rem;
+}
+
+.biblio-btn {
+  background: #4e54c8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+
+.biblio-btn:hover {
+  background: #3f43b9;
+}
+
+.biblio-empty {
+  text-align: center;
+  color: #6c757d;
+  margin: 2rem 0;
+}
+
+/* Deux colonnes après le header */
+.biblio-columns {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.biblio-filters {
+  min-width: 350px;
+  background: #f6f8fa;
+  border-radius: 10px;
+  padding: 1.2rem 1rem;
+  box-shadow: 0 2px 8px #0001;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.biblio-filter-group label {
+  font-weight: 500;
+  color: #4e54c8;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.biblio-filter-group select {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 7px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.biblio-main {
+  flex: 1;
+  min-width: 0;
+  padding-top: 0;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .biblio-columns {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .biblio-filters {
+    flex-direction: row;
+    gap: 1rem;
+    min-width: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .biblio-filter-group {
+    flex: 1;
+  }
+}

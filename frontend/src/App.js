@@ -9,6 +9,7 @@ import CreerSession from './components/CreerSession/CreerSession';
 import SessionDetail from './pages/SessionDetail/SessionDetail';
 import EditionSession from './pages/EditionSession/EditionSession';
 import Recherche from './pages/Recherche/Recherche';
+import Bibliotheque from './pages/Bibliotheque/Bibliotheque';
 import './assets/global.css';
 
 function App() {
@@ -123,6 +124,7 @@ function App() {
           <Route path="session/:id" element={<SessionDetail user={user} />} />
           <Route path="session/:id/edit" element={<EditionSession user={user} />} />
           <Route path="recherche" element={<Recherche user={user} />} />
+          <Route path="bibliotheque" element={<Bibliotheque />} />
         </Route>
       </Routes>
     </Router>
