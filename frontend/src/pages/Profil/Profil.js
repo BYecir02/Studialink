@@ -144,7 +144,7 @@ export default function Profil({ user }) {
           </div>
         </div>
 
-        <div className="section-title">Matières suivies</div>
+        <div className="section-title">Modules suivies</div>
         <div className="tags-container">
           <span className="tag">Algorithmique</span>
           <span className="tag">Base de données</span>

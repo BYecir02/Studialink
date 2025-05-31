@@ -62,8 +62,6 @@ export default function SessionDetail({ user }) {
       {/* Session Header */}
       <div className="session-header">
         <h1>{session.titre}</h1>
-        <p>{session.description || "Aucune description."}</p>
-        <span className="session-status">Planifiée</span>
       </div>
 
       <div className="session-container">
