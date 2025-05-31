@@ -192,3 +192,48 @@
     flex: 1;
   }
 }
+
+.biblio-form {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #0001;
+  max-width: 500px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.biblio-form input,
+.biblio-form textarea,
+.biblio-form select {
+  padding: 0.7rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f6f8fa;
+}
+
+.biblio-form button {
+  background: #4e54c8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.biblio-form button:hover {
+  background: #3f43b9;
+}
+
+.biblio-message {
+  text-align: center;
+  color: #1976d2;
+  margin-top: 1rem;
+}
+

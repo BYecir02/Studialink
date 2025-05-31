@@ -25,11 +25,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     uploadeurId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: { model: 'Utilisateurs', key: 'id' }
     },
     date_upload: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     },
     moduleId: {
       type: DataTypes.INTEGER,
@@ -41,7 +43,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     filiereId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: { model: 'Filieres', key: 'id' }
     },
     statut: {
       type: DataTypes.STRING,
@@ -50,7 +53,12 @@ module.exports = (sequelize, DataTypes) => {
     nb_telechargements: {
       type: DataTypes.INTEGER,
       defaultValue: 0
-    }
+    },
+    annee_production: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: new Date().getFullYear()
+    },
   }, {
     sequelize,
     modelName: 'RessourceBiblio',

@@ -28,6 +28,12 @@ app.use('/api/modules', moduleRoutes);
 const utilisateurRoutes = require('./routes/utilisateurs');
 app.use('/api/utilisateurs', utilisateurRoutes);
 
+const ressourceBiblioRoutes = require('./routes/ressourceBiblio');
+app.use('/api/ressources', ressourceBiblioRoutes);
+
+const anneeRoutes = require('./routes/annees');
+app.use('/api/annees', anneeRoutes);
+
 // Routes (à définir plus tard)
 app.get('/', (req, res) => {
   res.send('API en ligne !');
