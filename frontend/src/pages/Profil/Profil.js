@@ -16,6 +16,9 @@ function formatDate(dateString) {
 export default function Profil({ user }) {
   const [sessions, setSessions] = useState([]);
   const [participations, setParticipations] = useState([]);
+  const [mesRessources, setMesRessources] = useState([]);
+  const [modules, setModules] = useState([]);
+  const [annees, setAnnees] = useState([]);
   const navigate = useNavigate();
 
   const handleDeleteSession = async (sessionId) => {
@@ -29,6 +32,18 @@ export default function Profil({ user }) {
     }
   };
 
+  // Nouveau : suppression d'une ressource
+  const handleDeleteRessource = async (ressourceId) => {
+    if (window.confirm("Voulez-vous vraiment supprimer ce document ?")) {
+      try {
+        await axios.delete(`http://localhost:3000/api/ressources/${ressourceId}`);
+        setMesRessources(mesRessources.filter(r => r.id !== ressourceId));
+      } catch (err) {
+        alert("Erreur lors de la suppression du document.");
+      }
+    }
+  };
+
   useEffect(() => {
     if (user) {
       axios.get('http://localhost:3000/api/sessions')
@@ -37,6 +52,15 @@ export default function Profil({ user }) {
       axios.get(`http://localhost:3000/api/utilisateurs/${user.id}/sessions`)
         .then(res => setParticipations(res.data))
         .catch(() => setParticipations([]));
+      axios.get('http://localhost:3000/api/ressources', { params: { uploadeurId: user.id } })
+        .then(res => setMesRessources(res.data))
+        .catch(() => setMesRessources([]));
+      axios.get('http://localhost:3000/api/modules')
+        .then(res => setModules(res.data))
+        .catch(() => setModules([]));
+      axios.get('http://localhost:3000/api/annees')
+        .then(res => setAnnees(res.data))
+        .catch(() => setAnnees([]));
     }
   }, [user]);
 
@@ -54,6 +78,10 @@ export default function Profil({ user }) {
   // Statistiques réelles
   const nbSessionsTotal = mesSessions.length;
   const nbSessionsCreees = sessionsCreees.length;
+
+  // Pour afficher le nom du module/année à partir de l'id
+  const getModuleNom = id => modules.find(m => m.id === Number(id))?.nom || id;
+  const getAnneeNom = id => annees.find(a => a.id === Number(id))?.nom || id;
 
   if (!user) return <div>Chargement...</div>;
 
@@ -194,6 +222,55 @@ export default function Profil({ user }) {
               ))
           )}
         </div>
+
+        {/* Section : Mes documents postés */}
+        <div className="section-title" style={{marginTop: 32}}>Mes documents postés</div>
+        {mesRessources.length === 0 ? (
+          <p>Aucun document posté.</p>
+        ) : (
+          <ul className="biblio-list">
+            {mesRessources.map(doc => (
+              <li className="biblio-list-item" key={doc.id}>
+                <div className="biblio-list-main">
+                  <span className="biblio-list-title">
+                    <span style={{marginRight: 8, fontWeight: 600}}>{doc.type}</span>
+                    {doc.titre}
+                  </span>
+                  <span className="biblio-list-meta">
+                    <i className="fas fa-book"></i> {getModuleNom(doc.moduleId)} &nbsp;|&nbsp;
+                    <i className="fas fa-layer-group"></i> {getAnneeNom(doc.anneeId)}
+                  </span>
+                </div>
+                <div className="biblio-list-details">
+                  <span>
+                    <i className="fas fa-calendar-alt"></i> Posté le : {doc.date_upload ? new Date(doc.date_upload).toLocaleDateString('fr-FR') : ''}
+                  </span>
+                  <span>
+                    <i className="fas fa-calendar"></i> Année de production : {doc.annee_production || '-'}
+                  </span>
+                  <span>
+                    <i className="fas fa-weight-hanging"></i> {doc.fichier ? doc.fichier.split('-').slice(1).join('-') : ''}
+                  </span>
+                </div>
+                <div className="biblio-list-desc">{doc.description}</div>
+                <div className="biblio-list-actions">
+                  {doc.fichier && (
+                    <a href={`http://localhost:3000/api/ressources/${doc.id}/download`} className="biblio-btn" target="_blank" rel="noopener noreferrer">
+                      <i className="fas fa-download"></i> Télécharger
+                    </a>
+                  )}
+                  <button
+                    className="biblio-btn danger"
+                    style={{marginLeft: 8}}
+                    onClick={() => handleDeleteRessource(doc.id)}
+                  >
+                    <i className="fas fa-trash"></i> Supprimer
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

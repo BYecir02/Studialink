@@ -81,7 +81,7 @@ export default function Bibliotheque() {
           <form className="biblio-searchbar" onSubmit={e => e.preventDefault()}>
             <input
               type="text"
-              placeholder="Rechercher un document, un auteur..."
+              placeholder="Rechercher un document..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="biblio-search-input"
