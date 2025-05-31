@@ -46,7 +46,7 @@ export default function AjouterRessource({ user }) {
     const data = new FormData();
     Object.entries(form).forEach(([key, value]) => data.append(key, value));
     // Ajoute les champs obligatoires côté backend
-    data.append('uploadeurId', user?.id || 1); // Remplace 1 par l'id réel de l'utilisateur connecté
+    data.append('uploadeurId', user.id); 
     data.append('statut', 'valide'); // ou 'en_attente'
     try {
       await axios.post('http://localhost:3000/api/ressources', data, {

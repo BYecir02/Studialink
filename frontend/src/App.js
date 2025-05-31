@@ -11,6 +11,7 @@ import EditionSession from './pages/EditionSession/EditionSession';
 import Recherche from './pages/Recherche/Recherche';
 import Bibliotheque from './pages/Bibliotheque/Bibliotheque';
 import AjouterRessource from './pages/Bibliotheque/AjouterRessource';
+import EditProfil from './pages/EditProfil/EditProfil';
 import './assets/global.css';
 
 function App() {
@@ -51,6 +52,12 @@ function App() {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  };
+
+    const updateUser = (updatedUserData) => {
+    const newUser = { ...user, ...updatedUserData };
+    setUser(newUser);
+    localStorage.setItem('user', JSON.stringify(newUser));
   };
 
   if (!token) {
@@ -126,7 +133,8 @@ function App() {
           <Route path="session/:id/edit" element={<EditionSession user={user} />} />
           <Route path="recherche" element={<Recherche user={user} />} />
           <Route path="bibliotheque" element={<Bibliotheque />} />
-          <Route path="ajouter-ressource" element={<AjouterRessource />} />
+          <Route path="ajouter-ressource" element={<AjouterRessource user={user} />} />
+          <Route path="profil/edit" element={<EditProfil user={user} updateUser={updateUser} />} />
         </Route>
       </Routes>
     </Router>

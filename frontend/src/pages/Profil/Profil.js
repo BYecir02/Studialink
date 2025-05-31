@@ -19,6 +19,7 @@ export default function Profil({ user }) {
   const [mesRessources, setMesRessources] = useState([]);
   const [modules, setModules] = useState([]);
   const [annees, setAnnees] = useState([]);
+  const [modulesSuivis, setModulesSuivis] = useState([]);
   const navigate = useNavigate();
 
   const handleDeleteSession = async (sessionId) => {
@@ -53,8 +54,9 @@ export default function Profil({ user }) {
       axios.get(`http://localhost:3000/api/utilisateurs/${user.id}/sessions`)
         .then(res => setParticipations(res.data))
         .catch(() => setParticipations([]));
-      axios.get('http://localhost:3000/api/ressources', { params: { uploadeurId: user.id } })
-        .then(res => setMesRessources(res.data))
+      // 3. Ressources partagées par l'utilisateur connecté (filtrage côté front)
+      axios.get('http://localhost:3000/api/ressources')
+        .then(res => setMesRessources(res.data.filter(r => r.uploadeurId === user.id)))
         .catch(() => setMesRessources([]));
       axios.get('http://localhost:3000/api/modules')
         .then(res => setModules(res.data))
@@ -62,6 +64,10 @@ export default function Profil({ user }) {
       axios.get('http://localhost:3000/api/annees')
         .then(res => setAnnees(res.data))
         .catch(() => setAnnees([]));
+        axios.get(`http://localhost:3000/api/utilisateurs/${user.id}/modules-suivis`)
+        .then(res => setModulesSuivis(res.data))
+        .catch(() => setModulesSuivis([]));
+    
     }
   }, [user]);
 
@@ -93,6 +99,20 @@ export default function Profil({ user }) {
         </div>
         <h2>{user.prenom} {user.nom}</h2>
         <p>{user.filiere?.nom || 'Filière inconnue'}</p>
+        <div className="info-item">
+          <div className="info-icon"><i className="fas fa-calendar"></i></div>
+          <div className="info-content">
+            <h3>Année actuelle</h3>
+            <p>{user.annee?.nom || 'Non renseignée'}</p>
+          </div>
+        </div>
+        <div className="info-item">
+          <div className="info-icon"><i className="fas fa-info"></i></div>
+          <div className="info-content">
+            <h3>Description</h3>
+            <p>{user.description || 'Non renseignée'}</p>
+          </div>
+        </div>
         <div className="profile-stats">
           <div className="stat-item">
             <div className="stat-value">{nbSessionsTotal}</div>
@@ -103,7 +123,7 @@ export default function Profil({ user }) {
             <div className="stat-label">Sessions créées</div>
           </div>
         </div>
-        <button className="btn-edit-profile">
+        <button className="btn-edit-profile" onClick={() => navigate('/profil/edit')}>
           <i className="fas fa-edit"></i> Modifier le Profil
         </button>
       </div>
@@ -144,11 +164,15 @@ export default function Profil({ user }) {
           </div>
         </div>
 
-        <div className="section-title">Modules suivies</div>
+        <div className="section-title">Modules suivis</div>
         <div className="tags-container">
-          <span className="tag">Algorithmique</span>
-          <span className="tag">Base de données</span>
-          <span className="tag">Développement Web</span>
+          {modulesSuivis.length === 0 ? (
+            <span className="tag">Aucun module suivi</span>
+          ) : (
+            modulesSuivis.map(m => (
+              <span className="tag" key={m.id}>{m.nom}</span>
+            ))
+          )}
         </div>
 
         <div className="sessions-container">
@@ -222,7 +246,7 @@ export default function Profil({ user }) {
         {/* Section : Mes documents postés */}
         <div className="section-title" style={{marginTop: 32}}>Mes documents partagées</div>
         {mesRessources.length === 0 ? (
-          <p>Aucun document posté.</p>
+          <p>Aucun document partagé.</p>
         ) : (
           <ul className="biblio-list">
             {mesRessources.map(doc => (

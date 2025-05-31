@@ -4,6 +4,14 @@ module.exports = (sequelize, DataTypes) => {
   class Utilisateur extends Model {
     static associate(models) {
       Utilisateur.belongsTo(models.Filiere, { foreignKey: 'filiereId' });
+      Utilisateur.belongsTo(models.Annee, { foreignKey: 'anneeId' });
+      Utilisateur.hasMany(models.ModuleSuivi, { foreignKey: 'utilisateurId' });
+      Utilisateur.belongsToMany(models.Module, {
+        through: models.ModuleSuivi,
+        foreignKey: 'utilisateurId',
+        otherKey: 'moduleId',
+        as: 'modulesSuivis'
+      });
     }
   }
   Utilisateur.init({
@@ -17,7 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     administrateur: { type: DataTypes.BOOLEAN, defaultValue: false },
     date_inscription: { type: DataTypes.DATE, allowNull: false },
     derniere_connexion: { type: DataTypes.DATE },
-    filiereId: { type: DataTypes.INTEGER, allowNull: false }
+    filiereId: { type: DataTypes.INTEGER, allowNull: false },
+    description: { type: DataTypes.STRING }, // Ajouté
+    anneeId: { type: DataTypes.INTEGER }     // Ajouté
   }, {
     sequelize,
     modelName: 'Utilisateur',

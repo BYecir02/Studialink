@@ -1,4 +1,4 @@
-const { Utilisateur, Filiere } = require('../models');
+const { Utilisateur, Filiere, Annee } = require('../models'); // Ajoute Annee
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -6,7 +6,7 @@ const SECRET = 'studiakey'; // À mettre dans un .env en prod
 
 exports.register = async (req, res) => {
   try {
-    const { email, mot_de_passe, prenom, nom, filiereId } = req.body;
+    const { email, mot_de_passe, prenom, nom, filiereId, description, anneeId } = req.body;
     const hash = await bcrypt.hash(mot_de_passe, 10);
     const user = await Utilisateur.create({
       email,
@@ -14,6 +14,8 @@ exports.register = async (req, res) => {
       prenom,
       nom,
       filiereId,
+      description,
+      anneeId,
       date_inscription: new Date()
     });
     res.status(201).json({
@@ -31,7 +33,10 @@ exports.login = async (req, res) => {
     // On inclut la filière dans la requête
     const user = await Utilisateur.findOne({
       where: { email },
-      include: [{ model: Filiere, attributes: ['id', 'nom', 'type'] }]
+      include: [
+        { model: Filiere, attributes: ['id', 'nom', 'type'] },
+        { model: Annee, attributes: ['id', 'nom'] } // Ajoute l'année
+      ]
     });
     if (!user) return res.status(401).json({ error: 'Utilisateur non trouvé' });
     const valid = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
@@ -47,7 +52,10 @@ exports.login = async (req, res) => {
         nom: user.nom,
         filiereId: user.filiereId,
         filiere: user.Filiere, // On renvoie la filière complète
-        date_inscription: user.date_inscription
+        date_inscription: user.date_inscription,
+        description: user.description, // Ajoute ceci
+        anneeId: user.anneeId,         // Ajoute ceci si tu veux l'id
+        annee: user.Annee || null      // Ajoute ceci si tu fais un include sur Annee (voir ci-dessous)
       }
     });
   } catch (err) {

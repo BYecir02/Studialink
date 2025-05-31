@@ -28,8 +28,7 @@
 }
 
 .navbar-link.active {
-  color: #fff;
-  text-decoration: underline;
+  color: black;
 }
 
 .navbar-logout {

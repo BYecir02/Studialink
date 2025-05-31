@@ -5,6 +5,13 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Module.belongsTo(models.Filiere, { foreignKey: 'filiereId' });
       Module.belongsTo(models.Annee, { foreignKey: 'anneeId' });
+      Module.hasMany(models.ModuleSuivi, { foreignKey: 'moduleId' });
+      Module.belongsToMany(models.Utilisateur, {
+        through: models.ModuleSuivi,
+        foreignKey: 'moduleId',
+        otherKey: 'utilisateurId',
+        as: 'utilisateursSuiveurs'
+      });
     }
   }
   Module.init({

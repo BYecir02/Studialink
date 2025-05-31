@@ -177,11 +177,13 @@ body {
   color: var(--gray);
   font-weight: 500;
   margin-bottom: 5px;
+  text-align: left;
 }
 
 .info-content p {
   font-weight: 500;
   color: var(--dark);
+  text-align: left;
 }
 
 .tags-container {

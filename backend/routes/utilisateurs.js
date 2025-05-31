@@ -41,4 +41,47 @@ router.get('/:id/sessions', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get('/:id/modules-suivis', async (req, res) => {
+  try {
+    const user = await Utilisateur.findByPk(req.params.id, {
+      include: [
+        {
+          model: Module,
+          as: 'modulesSuivis',
+          attributes: ['id', 'nom']
+        }
+      ]
+    });
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    res.json(user.modulesSuivis);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  try {
+    const user = await Utilisateur.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    // Mise à jour des champs de base
+    await user.update({
+      prenom: req.body.prenom,
+      nom: req.body.nom,
+      description: req.body.description,
+      anneeId: req.body.anneeId
+    });
+
+    // Mise à jour des modules suivis (table de jointure)
+    if (Array.isArray(req.body.modulesSuivis)) {
+      await user.setModulesSuivis(req.body.modulesSuivis);
+    }
+
+    res.json({ message: 'Profil mis à jour' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 module.exports = router;
