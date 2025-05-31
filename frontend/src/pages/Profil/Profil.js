@@ -14,7 +14,7 @@ function formatDate(dateString) {
 }
 
 export default function Profil({ user }) {
-  const [sessions, setSessions] = useState([]);
+  const [sessionsCreees, setSessionsCreees] = useState([]);
   const [participations, setParticipations] = useState([]);
   const [mesRessources, setMesRessources] = useState([]);
   const [modules, setModules] = useState([]);
@@ -25,14 +25,13 @@ export default function Profil({ user }) {
     if (window.confirm("Voulez-vous vraiment supprimer cette session ?")) {
       try {
         await axios.delete(`http://localhost:3000/api/sessions/${sessionId}`);
-        setSessions(sessions.filter(s => s.id !== sessionId));
+        setSessionsCreees(sessionsCreees.filter(s => s.id !== sessionId));
       } catch (err) {
         alert("Erreur lors de la suppression.");
       }
     }
   };
 
-  // Nouveau : suppression d'une ressource
   const handleDeleteRessource = async (ressourceId) => {
     if (window.confirm("Voulez-vous vraiment supprimer ce document ?")) {
       try {
@@ -46,9 +45,11 @@ export default function Profil({ user }) {
 
   useEffect(() => {
     if (user) {
+      // 1. Sessions créées par l'utilisateur
       axios.get('http://localhost:3000/api/sessions')
-        .then(res => setSessions(res.data))
-        .catch(() => setSessions([]));
+        .then(res => setSessionsCreees(res.data.filter(s => s.createurId === user.id)))
+        .catch(() => setSessionsCreees([]));
+      // 2. Sessions où l'utilisateur est participant
       axios.get(`http://localhost:3000/api/utilisateurs/${user.id}/sessions`)
         .then(res => setParticipations(res.data))
         .catch(() => setParticipations([]));
@@ -64,22 +65,17 @@ export default function Profil({ user }) {
     }
   }, [user]);
 
-  // Sessions créées par l'utilisateur
-  const sessionsCreees = sessions.filter(s => s.createurId === user.id);
+  // Fusionne sans doublons (par id)
+  const mesSessions = [
+    ...sessionsCreees,
+    ...participations.filter(
+      sp => !sessionsCreees.some(sc => sc.id === sp.id)
+    )
+  ];
 
-  // Sessions où l'utilisateur est participant (hors celles qu'il a créées)
-  const sessionsParticipe = participations.filter(
-    s => s.createurId !== user.id
-  );
-
-  // Fusionne et retire les doublons (si besoin)
-  const mesSessions = [...sessionsCreees, ...sessionsParticipe];
-
-  // Statistiques réelles
   const nbSessionsTotal = mesSessions.length;
   const nbSessionsCreees = sessionsCreees.length;
 
-  // Pour afficher le nom du module/année à partir de l'id
   const getModuleNom = id => modules.find(m => m.id === Number(id))?.nom || id;
   const getAnneeNom = id => annees.find(a => a.id === Number(id))?.nom || id;
 
@@ -224,7 +220,7 @@ export default function Profil({ user }) {
         </div>
 
         {/* Section : Mes documents postés */}
-        <div className="section-title" style={{marginTop: 32}}>Mes documents postés</div>
+        <div className="section-title" style={{marginTop: 32}}>Mes documents partagées</div>
         {mesRessources.length === 0 ? (
           <p>Aucun document posté.</p>
         ) : (

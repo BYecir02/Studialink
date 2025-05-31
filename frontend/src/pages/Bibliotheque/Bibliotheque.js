@@ -53,7 +53,20 @@ export default function Bibliotheque() {
       </div>
       <div className="biblio-columns">
         {/* Colonne gauche : Filtres */}
+        
         <aside className="biblio-filters">
+          <form className="biblio-searchbar" onSubmit={e => e.preventDefault()}>
+            <input
+              type="text"
+              placeholder="Rechercher un document..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="biblio-search-input"
+            />
+            <button className="biblio-search-btn" type="submit">
+              <i className="fas fa-search"></i>
+            </button>
+          </form>
           <div className="biblio-filter-group">
             <label>Année</label>
             <select value={annee} onChange={e => setAnnee(e.target.value)}>
@@ -78,18 +91,7 @@ export default function Bibliotheque() {
         </aside>
         {/* Colonne droite : Recherche + Liste */}
         <main className="biblio-main">
-          <form className="biblio-searchbar" onSubmit={e => e.preventDefault()}>
-            <input
-              type="text"
-              placeholder="Rechercher un document..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="biblio-search-input"
-            />
-            <button className="biblio-search-btn" type="submit">
-              <i className="fas fa-search"></i>
-            </button>
-          </form>
+
           <ul className="biblio-list">
             {ressources.length === 0 && (
               <li className="biblio-empty">Aucun document trouvé.</li>
