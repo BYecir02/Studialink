@@ -86,7 +86,6 @@ export default function AjouterRessource({ user }) {
           placeholder="Description"
           value={form.description}
           onChange={handleChange}
-          required
         />
         <select name="type" value={form.type} onChange={handleChange} required>
           <option value="">Type de ressource</option>
