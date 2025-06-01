@@ -8,11 +8,13 @@ export default function EditProfil({ user, updateUser}) {
     prenom: user?.prenom || '',
     nom: user?.nom || '',
     description: user?.description || '',
-    anneeId: user?.anneeId || ''
+    anneeId: user?.anneeId || '',
+    filiereId: user?.filiereId || '' // ✅ Ajout filière
   });
   const [annees, setAnnees] = useState([]);
   const [modules, setModules] = useState([]);
-  const [modulesSuivis, setModulesSuivis] = useState([]); // tableau d'ids
+  const [filieres, setFilieres] = useState([]); // ✅ Nouvel état
+  const [modulesSuivis, setModulesSuivis] = useState([]);
   const [message, setMessage] = useState('');
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
@@ -24,6 +26,10 @@ export default function EditProfil({ user, updateUser}) {
     axios.get('http://localhost:3000/api/modules')
       .then(res => setModules(res.data))
       .catch(() => setModules([]));
+    // ✅ Charger les filières
+    axios.get('http://localhost:3000/api/filieres')
+      .then(res => setFilieres(res.data))
+      .catch(() => setFilieres([]));
     axios.get(`http://localhost:3000/api/utilisateurs/${user.id}/modules-suivis`)
       .then(res => setModulesSuivis(res.data.map(m => m.id)))
       .catch(() => setModulesSuivis([]));
@@ -48,17 +54,20 @@ export default function EditProfil({ user, updateUser}) {
     try {
       await axios.put(`http://localhost:3000/api/utilisateurs/${user.id}`, {
         ...form,
-        modulesSuivis // tableau d'ids à envoyer au backend
+        modulesSuivis
       });
 
       // ✅ Mettre à jour l'état utilisateur dans App.js
       const selectedAnnee = annees.find(a => a.id === Number(form.anneeId));
+      const selectedFiliere = filieres.find(f => f.id === Number(form.filiereId)); // ✅ Ajout
       const updatedUserData = {
         prenom: form.prenom,
         nom: form.nom,
         description: form.description,
         anneeId: form.anneeId,
-        annee: selectedAnnee || null // Pour l'affichage du nom de l'année
+        filiereId: form.filiereId, // ✅ Ajout
+        annee: selectedAnnee || null,
+        filiere: selectedFiliere || null // ✅ Ajout pour l'affichage
       };
       
       if (updateUser) {
@@ -78,7 +87,7 @@ export default function EditProfil({ user, updateUser}) {
       m.nom.toLowerCase().includes(search.toLowerCase()) &&
       !modulesSuivis.includes(m.id)
     )
-    .slice(0, 10); // Limite l'affichage à 10 résultats
+    .slice(0, 10);
 
   return (
     <div className="edit-profile-container">
@@ -124,7 +133,23 @@ export default function EditProfil({ user, updateUser}) {
               rows={3}
             />
           </div>
-          <div className="edit-profile-item edit-profile-full">
+          {/* ✅ Nouveau champ filière */}
+          <div className="edit-profile-item">
+            <label htmlFor="filiereId">Filière</label>
+            <select
+              id="filiereId"
+              name="filiereId"
+              value={form.filiereId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Sélectionner une filière</option>
+              {filieres.map(f => (
+                <option key={f.id} value={f.id}>{f.nom}</option>
+              ))}
+            </select>
+          </div>
+          <div className="edit-profile-item">
             <label htmlFor="anneeId">Année actuelle</label>
             <select
               id="anneeId"

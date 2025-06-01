@@ -70,7 +70,8 @@ router.put('/:id', async (req, res) => {
       prenom: req.body.prenom,
       nom: req.body.nom,
       description: req.body.description,
-      anneeId: req.body.anneeId
+      anneeId: req.body.anneeId,
+      filiereId: req.body.filiereId
     });
 
     // Mise à jour des modules suivis (table de jointure)
