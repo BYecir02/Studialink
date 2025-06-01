@@ -128,7 +128,7 @@
   background: #3f43b9;
 }
 
-/* ✅ CONVERSATION ITEM SIMPLIFIÉ ET RESPONSIVE */
+/* ✅ CONVERSATION ITEM SIMPLIFIÉ - STRUCTURE FINALE */
 .conversation-item {
   display: flex;
   align-items: flex-start;
@@ -152,7 +152,7 @@
   border-color: #4e54c8;
 }
 
-/* ✅ AVATAR SIMPLIFIÉ ET RESPONSIVE */
+/* ✅ AVATAR SIMPLIFIÉ */
 .conversation-avatar {
   width: 36px;
   height: 36px;
@@ -178,7 +178,7 @@
   font-weight: 600;
 }
 
-/* ✅ INFO SIMPLIFIÉ ET RESPONSIVE */
+/* ✅ INFO SIMPLIFIÉ - TITRE + DERNIER MESSAGE UNIQUEMENT */
 .conversation-info {
   flex: 1;
   min-width: 0;
@@ -193,22 +193,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3;
-  max-height: 15em;
-}
+  width: 100%;
 
-.conversation-meta {
-  font-size: 0.75rem;
-  color: #6c757d;
-  margin-bottom: 4px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.conversation-meta span {
-  display: flex;
-  align-items: center;
-  gap: 3px;
 }
 
 .conversation-last-message {
@@ -219,15 +205,10 @@
   text-overflow: ellipsis;
   font-style: italic;
   opacity: 0.8;
+  width: 100%;
 }
 
-.session-participants {
-  color: #28a745;
-  font-size: 0.7rem;
-  margin-top: 4px;
-}
-
-/* ✅ ACTIONS SIMPLIFIÉES ET RESPONSIVE */
+/* ✅ ACTIONS SIMPLIFIÉES - BOUTON INFO + COMPTEUR */
 .session-actions {
   display: flex;
   align-items: center;
@@ -682,19 +663,6 @@
     border-radius: 12px;
   }
   
-  .conversations-header {
-    padding: 16px 18px;
-  }
-  
-  .conversations-header h3 {
-    font-size: 0.95rem;
-  }
-  
-  .btn-new-conversation {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-  }
-  
   .conversation-item {
     padding: 11px;
   }
@@ -705,37 +673,12 @@
     margin-right: 9px;
   }
   
-  .session-avatar {
-    font-size: 0.95rem;
-  }
-  
   .conversation-name {
     font-size: 0.88rem;
   }
   
-  .conversation-meta {
-    font-size: 0.72rem;
-    gap: 7px;
-  }
-  
   .conversation-last-message {
     font-size: 0.78rem;
-  }
-  
-  .session-participants {
-    font-size: 0.68rem;
-  }
-  
-  .session-detail-btn {
-    width: 22px;
-    height: 22px;
-    font-size: 0.75rem;
-  }
-  
-  .conversation-unread {
-    width: 15px;
-    height: 15px;
-    font-size: 0.65rem;
   }
 }
 
@@ -752,23 +695,6 @@
     border-radius: 10px;
   }
   
-  .conversations-header {
-    padding: 14px 16px;
-  }
-  
-  .conversations-header h3 {
-    font-size: 0.9rem;
-  }
-  
-  .btn-new-conversation {
-    padding: 5px 8px;
-    font-size: 0.75rem;
-  }
-  
-  .conversations-list {
-    padding: 6px;
-  }
-  
   .conversation-item {
     padding: 10px;
     margin-bottom: 3px;
@@ -781,46 +707,12 @@
     margin-right: 8px;
   }
   
-  .session-avatar {
-    font-size: 0.9rem;
-  }
-  
   .conversation-name {
     font-size: 0.85rem;
-    margin-bottom: 3px;
-  }
-  
-  .conversation-meta {
-    font-size: 0.7rem;
-    gap: 6px;
-    margin-bottom: 3px;
   }
   
   .conversation-last-message {
     font-size: 0.75rem;
-  }
-  
-  .session-participants {
-    font-size: 0.65rem;
-    margin-top: 3px;
-  }
-  
-  .session-actions {
-    gap: 5px;
-    margin-left: 6px;
-  }
-  
-  .session-detail-btn {
-    width: 20px;
-    height: 20px;
-    font-size: 0.7rem;
-    padding: 3px;
-  }
-  
-  .conversation-unread {
-    width: 14px;
-    height: 14px;
-    font-size: 0.6rem;
   }
 }
 
@@ -849,7 +741,7 @@
     position: relative;
   }
   
-  /* ✅ NAVIGATION MOBILE POUR LA LISTE */
+  /* ✅ NAVIGATION MOBILE */
   .conversations-sidebar {
     display: block;
     position: static;
@@ -877,7 +769,7 @@
     display: flex;
   }
   
-  /* ✅ LISTE OPTIMISÉE MOBILE */
+  /* ✅ LISTE MOBILE OPTIMISÉE */
   .conversations-header {
     padding: 12px 16px;
     background: #4e54c8;
@@ -937,56 +829,37 @@
     font-size: 1rem;
     font-weight: 700;
   }
+
   
-  /* ✅ CORRECTION DU TITRE - le problème était ici */
+  
+  /* ✅ STYLE MOBILE POUR TITRE ET MESSAGE */
   .conversation-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
-  }
-  
-  .conversation-meta {
-    font-size: 0.7rem;
-    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
     margin-bottom: 4px;
-    flex-wrap: wrap; /* Permettre le retour à la ligne */
-    display: flex; /* Assurons-nous que le flex est maintenu */
-  }
-  
-  .conversation-meta span {
-    background: #f8f9fa;
-    padding: 2px 6px;
-    border-radius: 4px;
-    white-space: nowrap;
-    display: flex; /* Assurons-nous que les spans sont visibles */
-    align-items: center;
-    gap: 3px;
+    white-space: nowrap; /* ✅ AJOUTÉ */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+    display: block; /* ✅ AJOUTÉ pour sécurité */
+    width: 100%; /* ✅ AJOUTÉ pour sécurité */
+    max-width: calc(100vw - 120px); /* ✅ LIMITE MAXIMALE */
   }
   
   .conversation-last-message {
     font-size: 0.8rem;
-    /* Permettre l'affichage complet du dernier message */
+    color: #6c757d;
+    font-style: italic;
+    opacity: 0.8;
+    /* ✅ PERMETTRE L'AFFICHAGE COMPLET DU MESSAGE */
     white-space: normal;
     overflow: visible;
     text-overflow: initial;
-    display: block;
-  }
-  
-  .session-participants {
-    font-size: 0.7rem;
-    margin-top: 4px;
-    color: #28a745;
-    font-weight: 600;
-    display: block; /* Assurons-nous qu'il est visible */
-  }
-  
-  .session-actions {
-    gap: 6px;
+    word-wrap: break-word;
+    line-height: 1.4;
+    max-height: 3.2em;
+    display: block; /* ✅ AJOUTÉ pour sécurité */
   }
   
   .session-detail-btn {
@@ -1009,67 +882,6 @@
     font-size: 0.7rem;
     font-weight: 700;
   }
-  
-  /* ✅ CHAT MOBILE OPTIMISÉ */
-  .chat-header {
-    padding: 16px;
-    align-items: center;
-  }
-  
-  .chat-session-info {
-    flex: 1;
-    min-width: 0;
-  }
-  
-  .chat-contact {
-    font-size: 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .chat-session-meta {
-    flex-direction: column;
-    gap: 6px;
-    font-size: 0.75rem;
-  }
-  
-  .chat-actions {
-    gap: 6px;
-  }
-  
-  .chat-action-btn {
-    width: 32px;
-    height: 32px;
-    padding: 6px;
-  }
-  
-  .messages-area {
-    padding: 16px;
-    gap: 12px;
-  }
-  
-  .message {
-    max-width: 85%;
-  }
-  
-  .message-input-form {
-    padding: 16px 20px !important;
-    gap: 12px;
-  }
-  
-  .message-input {
-    padding: 12px 16px;
-    height: 44px;
-    font-size: 16px; /* Évite le zoom sur iOS */
-  }
-  
-  .send-btn {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-  }
 }
 
 /* Mobile portrait (576px) */
@@ -1077,31 +889,6 @@
   .messages-container {
     padding: 0 0.2rem;
     margin: 0.3rem auto;
-  }
-  
-  .messages-header h2 {
-    font-size: 1.3rem;
-  }
-  
-  .messages-header p {
-    font-size: 0.85rem;
-  }
-  
-  .conversations-header {
-    padding: 10px 14px;
-  }
-  
-  .conversations-header h3 {
-    font-size: 0.85rem;
-  }
-  
-  .btn-new-conversation {
-    padding: 4px 8px;
-    font-size: 0.75rem;
-  }
-  
-  .conversations-list {
-    padding: 4px;
   }
   
   .conversation-item {
@@ -1116,53 +903,14 @@
     margin-right: 8px;
   }
   
-  .session-avatar {
-    font-size: 0.9rem;
-  }
-  
-  /* ✅ CORRECTION POUR MOBILE PORTRAIT AUSSI */
   .conversation-name {
     font-size: 0.85rem;
     margin-bottom: 3px;
     font-weight: 700;
-    display: block;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: initial;
-    line-height: 1.3;
-    max-height: 15em;
-    max-width: 12em;
-    color: #2c3e50;
-  }
-  
-  .conversation-meta {
-    font-size: 0.65rem;
-    flex-direction: column;
-    gap: 2px;
-    margin-bottom: 3px;
-    display: flex;
-  }
-  
-  .conversation-meta span {
-    padding: 1px 4px;
-    font-size: 0.6rem;
-    display: flex;
-    align-items: center;
-    gap: 2px;
   }
   
   .conversation-last-message {
     font-size: 0.7rem;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: initial;
-    display: block;
-  }
-  
-  .session-participants {
-    font-size: 0.65rem;
-    margin-top: 3px;
-    display: block;
   }
   
   .session-detail-btn {
@@ -1176,83 +924,10 @@
     height: 16px;
     font-size: 0.6rem;
   }
-  
-  /* Chat responsive pour petits écrans */
-  .chat-header {
-    padding: 12px;
-  }
-  
-  .chat-contact {
-    font-size: 0.9rem;
-  }
-  
-  .chat-session-meta {
-    font-size: 0.7rem;
-  }
-  
-  .chat-session-meta span {
-    padding: 2px 4px;
-    font-size: 0.65rem;
-  }
-  
-  .messages-area {
-    padding: 12px;
-    gap: 10px;
-  }
-  
-  .message-content {
-    padding: 10px 14px;
-    font-size: 0.85rem;
-  }
-  
-  .message-author {
-    font-size: 0.7rem;
-  }
-  
-  .message-time {
-    font-size: 0.65rem;
-  }
-  
-  .message-input-form {
-    padding: 12px 16px !important;
-    gap: 10px;
-  }
-  
-  .message-input {
-    padding: 10px 14px;
-    height: 40px;
-    font-size: 15px;
-    border-radius: 20px;
-  }
-  
-  .send-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
-    font-size: 14px;
-  }
 }
 
 /* Très petits écrans (360px) */
 @media (max-width: 360px) {
-  .messages-header h2 {
-    font-size: 1.1rem;
-  }
-  
-  .conversations-header {
-    padding: 8px 12px;
-  }
-  
-  .conversations-header h3 {
-    font-size: 0.8rem;
-  }
-  
-  .btn-new-conversation {
-    padding: 3px 6px;
-    font-size: 0.7rem;
-  }
-  
   .conversation-item {
     padding: 8px 6px;
   }
@@ -1263,49 +938,13 @@
     margin-right: 6px;
   }
   
-  .session-avatar {
-    font-size: 0.8rem;
-  }
-  
-  /* ✅ CORRECTION POUR TRÈS PETITS ÉCRANS AUSSI */
   .conversation-name {
     font-size: 0.8rem;
     font-weight: 700;
-    display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-    line-height: 1.3;
-    max-height: 15em;
-    color: #2c3e50;
-    margin-bottom: 3px;
-  }
-  
-  .conversation-meta {
-    font-size: 0.6rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-  
-  .conversation-meta span {
-    display: flex;
-    align-items: center;
-    gap: 2px;
   }
   
   .conversation-last-message {
     font-size: 0.65rem;
-    display: block;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: initial;
-  }
-  
-  .session-participants {
-    font-size: 0.6rem;
-    display: block;
-    margin-top: 2px;
   }
   
   .session-detail-btn {
@@ -1318,41 +957,5 @@
     width: 14px;
     height: 14px;
     font-size: 0.55rem;
-  }
-  
-  .chat-header {
-    padding: 10px;
-  }
-  
-  .chat-contact {
-    font-size: 0.85rem;
-  }
-  
-  .messages-area {
-    padding: 10px;
-  }
-  
-  .message-content {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-  
-  .message-input {
-    padding: 8px 12px;
-    height: 36px;
-    font-size: 14px;
-  }
-  
-  .send-btn {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    font-size: 12px;
-  }
-  
-  .message-input-form {
-    padding: 10px 12px !important;
-    gap: 8px;
   }
 }
