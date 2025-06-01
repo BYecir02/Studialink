@@ -13,6 +13,10 @@ const upload = multer({ storage });
 // Lister + filtrer
 router.get('/', controller.list);
 
+// ✅ Nouvel endpoint pour les années de production
+router.get('/annees-production', controller.getAnneesProduction);
+
+
 // Télécharger un fichier
 router.get('/:id/download', controller.download);
 

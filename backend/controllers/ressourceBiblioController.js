@@ -30,11 +30,12 @@ exports.create = async (req, res) => {
 
 // Lister + filtrer
 exports.list = async (req, res) => {
-  const { annee, module, type, search } = req.query;
+  const { annee, module, type, search, anneeProduction } = req.query; // ✅ Ajouter anneeProduction
   const where = {};
   if (annee) where.anneeId = annee;   // annee = id
   if (module) where.moduleId = module; // module = id
   if (type) where.type = type;
+  if (anneeProduction) where.annee_production = anneeProduction; // ✅ Nouveau filtre
   if (search) {
     where[Op.or] = [
       { titre: { [Op.like]: `%${search}%` } },
@@ -92,5 +93,26 @@ exports.remove = async (req, res) => {
     res.json({ message: 'Ressource supprimée' });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+// ✅ Nouvelle fonction pour récupérer les années de production
+exports.getAnneesProduction = async (req, res) => {
+  try {
+    const result = await RessourceBiblio.findAll({
+      attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('annee_production')), 'annee_production']],
+      where: {
+        annee_production: {
+          [Op.not]: null
+        }
+      },
+      order: [['annee_production', 'DESC']]
+    });
+    
+    const annees = result.map(r => r.annee_production).filter(Boolean);
+    res.json(annees);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des années de production:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 };

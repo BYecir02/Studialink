@@ -8,13 +8,15 @@ export default function Bibliotheque() {
   const [annee, setAnnee] = useState('');
   const [module, setModule] = useState('');
   const [type, setType] = useState('');
+  const [anneeProduction, setAnneeProduction] = useState(''); // ✅ Nouveau state
   const [ressources, setRessources] = useState([]);
   const [modules, setModules] = useState([]);
   const [annees, setAnnees] = useState([]);
+  const [anneesProduction, setAnneesProduction] = useState([]); // ✅ Nouveau state
   const [types] = useState(['Cours', 'TD', 'TP', 'Annales', 'Fiche']);
   const navigate = useNavigate();
 
-  // Charger modules et années pour les filtres
+  // Charger modules, années et années de production pour les filtres
   useEffect(() => {
     axios.get('http://localhost:3000/api/modules')
       .then(res => setModules(res.data))
@@ -22,19 +24,34 @@ export default function Bibliotheque() {
     axios.get('http://localhost:3000/api/annees')
       .then(res => setAnnees(res.data))
       .catch(() => setAnnees([]));
+    
+    // ✅ Récupérer les années de production disponibles
+    axios.get('http://localhost:3000/api/ressources/annees-production')
+      .then(res => setAnneesProduction(res.data))
+      .catch(() => {
+        // Si l'endpoint n'existe pas encore, générer les années récentes
+        const currentYear = new Date().getFullYear();
+        const years = [];
+        for (let i = currentYear; i >= currentYear - 10; i--) {
+          years.push(i);
+        }
+        setAnneesProduction(years);
+      });
   }, []);
 
   // Charger les ressources selon les filtres
   useEffect(() => {
     const params = {};
-    if (annee) params.annee = annee;     // id de l'année
-    if (module) params.module = module;  // id du module
+    if (annee) params.annee = annee;
+    if (module) params.module = module;
     if (type) params.type = type;
     if (search) params.search = search;
+    if (anneeProduction) params.anneeProduction = anneeProduction; // ✅ Nouveau paramètre
+    
     axios.get('http://localhost:3000/api/ressources', { params })
       .then(res => setRessources(res.data))
       .catch(() => setRessources([]));
-  }, [annee, module, type, search]);
+  }, [annee, module, type, search, anneeProduction]); // ✅ Ajouter anneeProduction
 
   // Pour afficher le nom du module/année à partir de l'id
   const getModuleNom = id => modules.find(m => m.id === Number(id))?.nom || id;
@@ -52,8 +69,6 @@ export default function Bibliotheque() {
         </button>
       </div>
       <div className="biblio-columns">
-        {/* Colonne gauche : Filtres */}
-        
         <aside className="biblio-filters">
           <form className="biblio-searchbar" onSubmit={e => e.preventDefault()}>
             <input
@@ -68,7 +83,7 @@ export default function Bibliotheque() {
             </button>
           </form>
           <div className="biblio-filter-group">
-            <label>Année</label>
+            <label>Année d'études</label>
             <select value={annee} onChange={e => setAnnee(e.target.value)}>
               <option value="">Toutes</option>
               {annees.map(a => <option key={a.id} value={a.id}>{a.nom}</option>)}
@@ -85,13 +100,22 @@ export default function Bibliotheque() {
             <label>Type</label>
             <select value={type} onChange={e => setType(e.target.value)}>
               <option value="">Tous</option>
-              {types.map(t => <option key={t}>{t}</option>)}
+              {types.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          {/* ✅ Nouveau filtre année de production */}
+          <div className="biblio-filter-group">
+            <label>Année de production</label>
+            <select value={anneeProduction} onChange={e => setAnneeProduction(e.target.value)}>
+              <option value="">Toutes</option>
+              {anneesProduction.map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
             </select>
           </div>
         </aside>
-        {/* Colonne droite : Recherche + Liste */}
+        
         <main className="biblio-main">
-
           <ul className="biblio-list">
             {ressources.length === 0 && (
               <li className="biblio-empty">Aucun document trouvé.</li>
@@ -100,7 +124,6 @@ export default function Bibliotheque() {
               <li className="biblio-list-item" key={doc.id}>
                 <div className="biblio-list-main">
                   <span className="biblio-list-title">
-                    {/* Affiche le type puis le titre */}
                     <span style={{marginRight: 8, fontWeight: 600}}>{doc.type}</span>
                     {doc.titre}
                   </span>
@@ -114,7 +137,7 @@ export default function Bibliotheque() {
                     <i className="fas fa-calendar-alt"></i> Posté le : {doc.date_upload ? new Date(doc.date_upload).toLocaleDateString('fr-FR') : ''}
                   </span>
                   <span>
-                    <i className="fas fa-calendar"></i> Année : {doc.annee_production || '-'}
+                    <i className="fas fa-calendar"></i> Année de production : {doc.annee_production || '-'}
                   </span>
                   <span>
                     <i className="fas fa-weight-hanging"></i> {doc.fichier ? doc.fichier.split('-').slice(1).join('-') : ''}
