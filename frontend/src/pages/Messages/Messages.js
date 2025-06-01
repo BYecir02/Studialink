@@ -217,7 +217,7 @@ export default function Messages({ user }) {
       </div>
 
       <div className="messages-layout">
-        {/* Sidebar des sessions */}
+        {/* Sidebar des sessions - DESIGN SIMPLIFIÉ */}
         <div className={`conversations-sidebar ${showChat ? 'mobile-hidden' : ''}`}>
           <div className="conversations-header">
             <h3>Mes Sessions</h3>
@@ -252,25 +252,16 @@ export default function Messages({ user }) {
                   <div className="conversation-avatar session-avatar">
                     <i className="fas fa-users"></i>
                   </div>
+                  
                   <div className="conversation-info">
                     <div className="conversation-name">
                       {session.titre}
                     </div>
-                    <div className="conversation-meta">
-                      <span className="session-module">
-                        <i className="fas fa-book"></i> {session.Module?.nom}
-                      </span>
-                      <span className="session-date">
-                        <i className="fas fa-calendar"></i> {formatDate(session.date_heure)}
-                      </span>
-                    </div>
                     <div className="conversation-last-message">
                       {session.lastMessage || 'Aucun message'}
                     </div>
-                    <div className="session-participants">
-                      <i className="fas fa-user-friends"></i> {session.participants?.length || 0} participant{(session.participants?.length || 0) > 1 ? 's' : ''}
-                    </div>
                   </div>
+                  
                   <div className="session-actions">
                     <button 
                       className="session-detail-btn"

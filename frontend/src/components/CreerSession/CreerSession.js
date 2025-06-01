@@ -61,8 +61,9 @@ export default function CreerSession({ user }) {
   };
 
   return (
+  <div className="creer-session-container">
+  <h2>Créer une session de travail</h2>
     <form className="creer-session-form" onSubmit={handleSubmit}>
-      <h2>Créer une session de travail</h2>
       {message && <div className="creer-session-message">{message}</div>}
       <input
         name="titre"
@@ -150,5 +151,6 @@ export default function CreerSession({ user }) {
       )}
       <button type="submit">Créer la session</button>
     </form>
-  );
+  </div>
+);
 }
