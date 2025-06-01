@@ -131,3 +131,33 @@ exports.search = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.removeParticipant = async (req, res) => {
+  try {
+    const { sessionId, utilisateurId } = req.params;
+
+    // Vérifier que la session existe
+    const session = await SessionTravail.findByPk(sessionId);
+    if (!session) return res.status(404).json({ error: 'Session non trouvée' });
+
+    // Vérifier que l'utilisateur existe
+    const user = await Utilisateur.findByPk(utilisateurId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    // Trouver et supprimer la participation
+    const participation = await ParticipantSession.findOne({
+      where: { sessionTravailId: sessionId, utilisateurId }
+    });
+
+    if (!participation) {
+      return res.status(404).json({ error: 'Participation non trouvée' });
+    }
+
+    await participation.destroy();
+
+    res.json({ message: 'Participant retiré avec succès' });
+  } catch (err) {
+    console.error('Erreur lors de la suppression du participant:', err);
+    res.status(500).json({ error: err.message });
+  }
+};

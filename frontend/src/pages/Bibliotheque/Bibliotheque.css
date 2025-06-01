@@ -237,3 +237,146 @@
   margin-top: 1rem;
 }
 
+
+.biblio-results-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #4e54c8;
+}
+
+.results-count {
+  font-weight: 600;
+  color: #4e54c8;
+}
+
+.pagination-info-top {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* ✅ Styles pour la pagination */
+.pagination-container {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.pagination-info {
+  color: #6c757d;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  background: white;
+  color: #343a40;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.pagination-btn:hover:not(.disabled) {
+  background: #4e54c8;
+  color: white;
+  border-color: #4e54c8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(78, 84, 200, 0.2);
+}
+
+.pagination-btn.active {
+  background: #4e54c8;
+  color: white;
+  border-color: #4e54c8;
+  box-shadow: 0 2px 4px rgba(78, 84, 200, 0.3);
+}
+
+.pagination-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f6f8fa;
+}
+
+.pagination-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #6c757d;
+  font-weight: bold;
+}
+
+/* ✅ Amélioration de l'état vide */
+.biblio-empty {
+  text-align: center;
+  color: #6c757d;
+  margin: 3rem 0;
+  font-size: 1.1rem;
+  background: #f8f9fa;
+  padding: 40px 20px;
+  border-radius: 12px;
+  border: 2px dashed #e0e0e0;
+}
+
+/* ✅ Responsive pour la pagination */
+@media (max-width: 768px) {
+  .pagination {
+    gap: 4px;
+  }
+  
+  .pagination-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.8rem;
+  }
+  
+  .biblio-results-info {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .pagination-container {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination {
+    gap: 2px;
+  }
+  
+  .pagination-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+  
+  .pagination-ellipsis {
+    width: 32px;
+    height: 32px;
+  }
+}

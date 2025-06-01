@@ -8,12 +8,17 @@ export default function Bibliotheque() {
   const [annee, setAnnee] = useState('');
   const [module, setModule] = useState('');
   const [type, setType] = useState('');
-  const [anneeProduction, setAnneeProduction] = useState(''); // ✅ Nouveau state
+  const [anneeProduction, setAnneeProduction] = useState('');
   const [ressources, setRessources] = useState([]);
   const [modules, setModules] = useState([]);
   const [annees, setAnnees] = useState([]);
-  const [anneesProduction, setAnneesProduction] = useState([]); // ✅ Nouveau state
+  const [anneesProduction, setAnneesProduction] = useState([]);
   const [types] = useState(['Cours', 'TD', 'TP', 'Annales', 'Fiche']);
+  
+  // ✅ États pour la pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ressourcesPerPage] = useState(8); // 8 ressources par page
+  
   const navigate = useNavigate();
 
   // Charger modules, années et années de production pour les filtres
@@ -25,7 +30,7 @@ export default function Bibliotheque() {
       .then(res => setAnnees(res.data))
       .catch(() => setAnnees([]));
     
-    // ✅ Récupérer les années de production disponibles
+    // Récupérer les années de production disponibles
     axios.get('http://localhost:3000/api/ressources/annees-production')
       .then(res => setAnneesProduction(res.data))
       .catch(() => {
@@ -46,12 +51,25 @@ export default function Bibliotheque() {
     if (module) params.module = module;
     if (type) params.type = type;
     if (search) params.search = search;
-    if (anneeProduction) params.anneeProduction = anneeProduction; // ✅ Nouveau paramètre
+    if (anneeProduction) params.anneeProduction = anneeProduction;
     
     axios.get('http://localhost:3000/api/ressources', { params })
-      .then(res => setRessources(res.data))
+      .then(res => {
+        setRessources(res.data);
+        // ✅ Remettre à la première page quand les filtres changent
+        setCurrentPage(1);
+      })
       .catch(() => setRessources([]));
-  }, [annee, module, type, search, anneeProduction]); // ✅ Ajouter anneeProduction
+  }, [annee, module, type, search, anneeProduction]);
+
+  // ✅ Logique de pagination
+  const indexOfLastRessource = currentPage * ressourcesPerPage;
+  const indexOfFirstRessource = indexOfLastRessource - ressourcesPerPage;
+  const currentRessources = ressources.slice(indexOfFirstRessource, indexOfLastRessource);
+  const totalPages = Math.ceil(ressources.length / ressourcesPerPage);
+
+  // ✅ Fonction pour changer de page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Pour afficher le nom du module/année à partir de l'id
   const getModuleNom = id => modules.find(m => m.id === Number(id))?.nom || id;
@@ -68,6 +86,7 @@ export default function Bibliotheque() {
           <i className="fas fa-plus"></i> Ajouter une ressource
         </button>
       </div>
+      
       <div className="biblio-columns">
         <aside className="biblio-filters">
           <form className="biblio-searchbar" onSubmit={e => e.preventDefault()}>
@@ -103,7 +122,7 @@ export default function Bibliotheque() {
               {types.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
-          {/* ✅ Nouveau filtre année de production */}
+          {/* Nouveau filtre année de production */}
           <div className="biblio-filter-group">
             <label>Année de production</label>
             <select value={anneeProduction} onChange={e => setAnneeProduction(e.target.value)}>
@@ -116,11 +135,28 @@ export default function Bibliotheque() {
         </aside>
         
         <main className="biblio-main">
+          {/* ✅ Informations de pagination en haut */}
+          {ressources.length > 0 && (
+            <div className="biblio-results-info">
+              <span className="results-count">
+                {ressources.length} document{ressources.length > 1 ? 's' : ''} trouvé{ressources.length > 1 ? 's' : ''}
+              </span>
+              {totalPages > 1 && (
+                <span className="pagination-info-top">
+                  Page {currentPage} sur {totalPages}
+                </span>
+              )}
+            </div>
+          )}
+
           <ul className="biblio-list">
-            {ressources.length === 0 && (
+            {currentRessources.length === 0 && ressources.length === 0 && (
               <li className="biblio-empty">Aucun document trouvé.</li>
             )}
-            {ressources.map(doc => (
+            {currentRessources.length === 0 && ressources.length > 0 && (
+              <li className="biblio-empty">Aucun document sur cette page.</li>
+            )}
+            {currentRessources.map(doc => (
               <li className="biblio-list-item" key={doc.id}>
                 <div className="biblio-list-main">
                   <span className="biblio-list-title">
@@ -154,6 +190,81 @@ export default function Bibliotheque() {
               </li>
             ))}
           </ul>
+
+          {/* ✅ Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination-container">
+              <div className="pagination-info">
+                Affichage de {indexOfFirstRessource + 1} à {Math.min(indexOfLastRessource, ressources.length)} sur {ressources.length} documents
+              </div>
+              <div className="pagination">
+                {/* Bouton Précédent */}
+                <button 
+                  className={`pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <i className="fas fa-chevron-left"></i>
+                </button>
+
+                {/* Numéros de pages avec logique d'affichage intelligente */}
+                {(() => {
+                  const pages = [];
+                  const maxVisiblePages = 5;
+                  
+                  if (totalPages <= maxVisiblePages) {
+                    // Afficher toutes les pages si peu de pages
+                    for (let i = 1; i <= totalPages; i++) {
+                      pages.push(i);
+                    }
+                  } else {
+                    // Logique d'affichage avec "..."
+                    if (currentPage <= 3) {
+                      // Au début
+                      for (let i = 1; i <= 4; i++) pages.push(i);
+                      pages.push('...');
+                      pages.push(totalPages);
+                    } else if (currentPage >= totalPages - 2) {
+                      // À la fin
+                      pages.push(1);
+                      pages.push('...');
+                      for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+                    } else {
+                      // Au milieu
+                      pages.push(1);
+                      pages.push('...');
+                      for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+                      pages.push('...');
+                      pages.push(totalPages);
+                    }
+                  }
+
+                  return pages.map((page, index) => (
+                    page === '...' ? (
+                      <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
+                    ) : (
+                      <button
+                        key={page}
+                        className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+                        onClick={() => paginate(page)}
+                      >
+                        {page}
+                      </button>
+                    )
+                  ));
+                })()}
+
+                {/* Bouton Suivant */}
+                <button 
+                  className={`pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`}
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  <i className="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

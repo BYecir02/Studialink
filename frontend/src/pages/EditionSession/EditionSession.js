@@ -58,7 +58,11 @@ export default function EditionSession({ user }) {
   const addParticipant = (utilisateur) => {
     if (participants.some(p => p.id === utilisateur.id)) return;
     axios.post(`http://localhost:3000/api/sessions/${id}/participants`, { utilisateurId: utilisateur.id })
-      .then(() => setParticipants([...participants, utilisateur]));
+      .then(() => {
+        setParticipants([...participants, utilisateur]);
+        setSearch('');
+        setSuggestions([]);
+      });
   };
 
   // Retirer un participant (optionnel)
@@ -89,11 +93,11 @@ export default function EditionSession({ user }) {
 
   return (
     <div className="container">
-        <div className="header">
-            <button className="back-btn" onClick={() => navigate(-1)}>
-                <i className="fas fa-arrow-left"></i> Retour
-            </button>
-        </div>
+      <div className="header">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          <i className="fas fa-arrow-left"></i> Retour
+        </button>
+      </div>
       <h2>Modifier la session</h2>
       <form onSubmit={handleSubmit} className="form-container">
         <div className="form-group">
@@ -106,6 +110,7 @@ export default function EditionSession({ user }) {
             required
           />
         </div>
+        
         <div className="form-group">
           <label>Matière</label>
           <select
@@ -120,6 +125,7 @@ export default function EditionSession({ user }) {
             ))}
           </select>
         </div>
+        
         <div className="form-group">
           <label>Date</label>
           <input
@@ -130,6 +136,7 @@ export default function EditionSession({ user }) {
             required
           />
         </div>
+        
         <div className="form-group">
           <label>Heure</label>
           <input
@@ -140,6 +147,7 @@ export default function EditionSession({ user }) {
             required
           />
         </div>
+        
         <div className="form-group">
           <label>Durée (minutes)</label>
           <input
@@ -152,6 +160,7 @@ export default function EditionSession({ user }) {
             required
           />
         </div>
+        
         <div className="form-group">
           <label>Type de session</label>
           <select
@@ -165,6 +174,7 @@ export default function EditionSession({ user }) {
             <option value="hybride">Hybride</option>
           </select>
         </div>
+        
         <div className="form-group">
           <label>Lieu ou lien</label>
           <input
@@ -175,6 +185,7 @@ export default function EditionSession({ user }) {
             required
           />
         </div>
+        
         <div className="form-group">
           <label>Description</label>
           <textarea
@@ -184,6 +195,7 @@ export default function EditionSession({ user }) {
             rows={4}
           />
         </div>
+        
         <div className="form-group">
           <label>Visibilité</label>
           <select
@@ -196,6 +208,7 @@ export default function EditionSession({ user }) {
             <option value="privee">Privée</option>
           </select>
         </div>
+        
         <div className="form-group">
           <label>Participants maximum</label>
           <input
@@ -208,38 +221,62 @@ export default function EditionSession({ user }) {
             required
           />
         </div>
-        <div style={{margin: '30px 0'}}>
-          <label>Ajouter un participant :</label>
+        
+        {/* ✅ Section participants stylée */}
+        <div className="participants-section">
+          <label>
+            Ajouter un participant 
+            <span className="participants-count">
+              {participants.length} participant{participants.length > 1 ? 's' : ''}
+            </span>
+          </label>
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Rechercher un utilisateur..."
+            placeholder="Rechercher par nom, prénom ou email..."
+            className="participant-search-input"
           />
           {suggestions.length > 0 && (
             <ul className="suggestions-list">
               {suggestions.map(u => (
-                <li key={u.id} onClick={() => addParticipant(u)} style={{cursor: 'pointer'}}>
+                <li key={u.id} onClick={() => addParticipant(u)}>
                   {u.prenom} {u.nom} ({u.email})
                 </li>
               ))}
             </ul>
           )}
-          <div style={{marginTop: 20}}>
-            <strong>Participants :</strong>
-            <ul>
-              {participants.map(p => (
-                <li key={p.id}>
-                  {p.prenom} {p.nom}
-                  <button type="button" style={{marginLeft: 8, color: 'red', border: 'none', background: 'none', cursor: 'pointer'}}
-                    onClick={() => removeParticipant(p.id)}>
-                    &times;
-                  </button>
-                </li>
-              ))}
-            </ul>
+          
+          <div className="current-participants">
+            <strong>
+              Participants actuels 
+              <span className="participants-count">{participants.length}</span>
+            </strong>
+            {participants.length === 0 ? (
+              <div className="no-participants">
+                Aucun participant ajouté pour le moment
+              </div>
+            ) : (
+              <ul className="participants-list">
+                {participants.map(p => (
+                  <li key={p.id}>
+                    <span className="participant-info">
+                      {p.prenom} {p.nom}
+                    </span>
+                    <button 
+                      type="button" 
+                      onClick={() => removeParticipant(p.id)}
+                      title="Retirer ce participant"
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
+        
         <div style={{marginTop: 30}}>
           <button type="button" className="action-btn" onClick={() => navigate(-1)}>
             Annuler

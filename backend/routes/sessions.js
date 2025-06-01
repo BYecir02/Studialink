@@ -12,5 +12,7 @@ router.delete('/:id', controller.delete);
 // Ajouter un participant à une session
 router.post('/:sessionId/participants', controller.addParticipant);
 
+router.delete('/:sessionId/participants/:utilisateurId', controller.removeParticipant);
+
 
 module.exports = router;

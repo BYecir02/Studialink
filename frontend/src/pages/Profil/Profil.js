@@ -20,6 +20,11 @@ export default function Profil({ user }) {
   const [modules, setModules] = useState([]);
   const [annees, setAnnees] = useState([]);
   const [modulesSuivis, setModulesSuivis] = useState([]);
+  
+  // ✅ États pour la pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ressourcesPerPage] = useState(5); // 5 ressources par page
+  
   const navigate = useNavigate();
 
   const handleDeleteSession = async (sessionId) => {
@@ -38,6 +43,12 @@ export default function Profil({ user }) {
       try {
         await axios.delete(`http://localhost:3000/api/ressources/${ressourceId}`);
         setMesRessources(mesRessources.filter(r => r.id !== ressourceId));
+        // ✅ Ajuster la page courante si nécessaire
+        const newTotal = mesRessources.length - 1;
+        const maxPage = Math.ceil(newTotal / ressourcesPerPage);
+        if (currentPage > maxPage && maxPage > 0) {
+          setCurrentPage(maxPage);
+        }
       } catch (err) {
         alert("Erreur lors de la suppression du document.");
       }
@@ -64,12 +75,20 @@ export default function Profil({ user }) {
       axios.get('http://localhost:3000/api/annees')
         .then(res => setAnnees(res.data))
         .catch(() => setAnnees([]));
-        axios.get(`http://localhost:3000/api/utilisateurs/${user.id}/modules-suivis`)
+      axios.get(`http://localhost:3000/api/utilisateurs/${user.id}/modules-suivis`)
         .then(res => setModulesSuivis(res.data))
         .catch(() => setModulesSuivis([]));
-    
     }
   }, [user]);
+
+  // ✅ Logique de pagination
+  const indexOfLastRessource = currentPage * ressourcesPerPage;
+  const indexOfFirstRessource = indexOfLastRessource - ressourcesPerPage;
+  const currentRessources = mesRessources.slice(indexOfFirstRessource, indexOfLastRessource);
+  const totalPages = Math.ceil(mesRessources.length / ressourcesPerPage);
+
+  // ✅ Fonction pour changer de page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Fusionne sans doublons (par id)
   const mesSessions = [
@@ -83,7 +102,7 @@ export default function Profil({ user }) {
   const nbSessionsCreees = sessionsCreees.length;
 
   const getModuleNom = id => modules.find(m => m.id === Number(id))?.nom || id;
-  const getAnneeNom = id => annees.find(a => a.id === Number(id))?.nom || id;
+  const getAnneeNom = id => annees.find(a => a.id === Number(a))?.nom || id;
 
   if (!user) return <div>Chargement...</div>;
 
@@ -121,6 +140,11 @@ export default function Profil({ user }) {
           <div className="stat-item">
             <div className="stat-value">{nbSessionsCreees}</div>
             <div className="stat-label">Sessions créées</div>
+          </div>
+          {/* ✅ Nouvelle stat pour les ressources */}
+          <div className="stat-item">
+            <div className="stat-value">{mesRessources.length}</div>
+            <div className="stat-label">Documents partagés</div>
           </div>
         </div>
         <button className="btn-edit-profile" onClick={() => navigate('/profil/edit')}>
@@ -243,53 +267,102 @@ export default function Profil({ user }) {
           )}
         </div>
 
-        {/* Section : Mes documents postés */}
-        <div className="section-title" style={{marginTop: 32}}>Mes documents partagées</div>
+        {/* ✅ Section : Mes documents postés avec pagination */}
+        <div className="section-title" style={{marginTop: 32}}>
+          Mes documents partagés 
+          {mesRessources.length > 0 && (
+            <span className="section-count">({mesRessources.length})</span>
+          )}
+        </div>
         {mesRessources.length === 0 ? (
           <p>Aucun document partagé.</p>
         ) : (
-          <ul className="biblio-list">
-            {mesRessources.map(doc => (
-              <li className="biblio-list-item" key={doc.id}>
-                <div className="biblio-list-main">
-                  <span className="biblio-list-title">
-                    <span style={{marginRight: 8, fontWeight: 600}}>{doc.type}</span>
-                    {doc.titre}
-                  </span>
-                  <span className="biblio-list-meta">
-                    <i className="fas fa-book"></i> {getModuleNom(doc.moduleId)} &nbsp;|&nbsp;
-                    <i className="fas fa-layer-group"></i> {getAnneeNom(doc.anneeId)}
-                  </span>
+          <>
+            <ul className="biblio-list">
+              {currentRessources.map(doc => (
+                <li className="biblio-list-item" key={doc.id}>
+                  <div className="biblio-list-main">
+                    <span className="biblio-list-title">
+                      <span style={{marginRight: 8, fontWeight: 600}}>{doc.type}</span>
+                      {doc.titre}
+                    </span>
+                    <span className="biblio-list-meta">
+                      <i className="fas fa-book"></i> {getModuleNom(doc.moduleId)} &nbsp;|&nbsp;
+                      <i className="fas fa-layer-group"></i> {getAnneeNom(doc.anneeId)}
+                    </span>
+                  </div>
+                  <div className="biblio-list-details">
+                    <span>
+                      <i className="fas fa-calendar-alt"></i> Posté le : {doc.date_upload ? new Date(doc.date_upload).toLocaleDateString('fr-FR') : ''}
+                    </span>
+                    <span>
+                      <i className="fas fa-calendar"></i> Année de production : {doc.annee_production || '-'}
+                    </span>
+                    <span>
+                      <i className="fas fa-weight-hanging"></i> {doc.fichier ? doc.fichier.split('-').slice(1).join('-') : ''}
+                    </span>
+                  </div>
+                  <div className="biblio-list-desc">{doc.description}</div>
+                  <div className="biblio-list-actions">
+                    {doc.fichier && (
+                      <a href={`http://localhost:3000/api/ressources/${doc.id}/download`} className="biblio-btn" target="_blank" rel="noopener noreferrer">
+                        <i className="fas fa-download"></i> Télécharger
+                      </a>
+                    )}
+                    <button
+                      className="biblio-btn danger"
+                      style={{marginLeft: 8}}
+                      onClick={() => handleDeleteRessource(doc.id)}
+                    >
+                      <i className="fas fa-trash"></i> Supprimer
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* ✅ Pagination */}
+            {totalPages > 1 && (
+              <div className="pagination-container">
+                <div className="pagination-info">
+                  Affichage de {indexOfFirstRessource + 1} à {Math.min(indexOfLastRessource, mesRessources.length)} sur {mesRessources.length} documents
                 </div>
-                <div className="biblio-list-details">
-                  <span>
-                    <i className="fas fa-calendar-alt"></i> Posté le : {doc.date_upload ? new Date(doc.date_upload).toLocaleDateString('fr-FR') : ''}
-                  </span>
-                  <span>
-                    <i className="fas fa-calendar"></i> Année de production : {doc.annee_production || '-'}
-                  </span>
-                  <span>
-                    <i className="fas fa-weight-hanging"></i> {doc.fichier ? doc.fichier.split('-').slice(1).join('-') : ''}
-                  </span>
-                </div>
-                <div className="biblio-list-desc">{doc.description}</div>
-                <div className="biblio-list-actions">
-                  {doc.fichier && (
-                    <a href={`http://localhost:3000/api/ressources/${doc.id}/download`} className="biblio-btn" target="_blank" rel="noopener noreferrer">
-                      <i className="fas fa-download"></i> Télécharger
-                    </a>
-                  )}
-                  <button
-                    className="biblio-btn danger"
-                    style={{marginLeft: 8}}
-                    onClick={() => handleDeleteRessource(doc.id)}
+                <div className="pagination">
+                  {/* Bouton Précédent */}
+                  <button 
+                    className={`pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
                   >
-                    <i className="fas fa-trash"></i> Supprimer
+                    <i className="fas fa-chevron-left"></i>
+                  </button>
+
+                  {/* Numéros de pages */}
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNumber = index + 1;
+                    return (
+                      <button
+                        key={pageNumber}
+                        className={`pagination-btn ${currentPage === pageNumber ? 'active' : ''}`}
+                        onClick={() => paginate(pageNumber)}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+
+                  {/* Bouton Suivant */}
+                  <button 
+                    className={`pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`}
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    <i className="fas fa-chevron-right"></i>
                   </button>
                 </div>
-              </li>
-            ))}
-          </ul>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
