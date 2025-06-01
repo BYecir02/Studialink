@@ -12,6 +12,7 @@ import Recherche from './pages/Recherche/Recherche';
 import Bibliotheque from './pages/Bibliotheque/Bibliotheque';
 import AjouterRessource from './pages/Bibliotheque/AjouterRessource';
 import EditProfil from './pages/EditProfil/EditProfil';
+import Messages from './pages/Messages/Messages';
 import './assets/global.css';
 
 function App() {
@@ -135,7 +136,9 @@ function App() {
           <Route path="bibliotheque" element={<Bibliotheque />} />
           <Route path="ajouter-ressource" element={<AjouterRessource user={user} />} />
           <Route path="profil/edit" element={<EditProfil user={user} updateUser={updateUser} />} />
+          <Route path="messages" element={<Messages user={user} />} />
         </Route>
+        
       </Routes>
     </Router>
   );

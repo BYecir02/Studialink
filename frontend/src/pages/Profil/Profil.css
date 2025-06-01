@@ -24,7 +24,8 @@ body {
   grid-template-columns: 1fr 2fr;
   gap: 25px;
   max-width: 1500px;
-  margin: 0 auto;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
 .profile-card {
@@ -84,8 +85,9 @@ body {
 }
 
 .profile-stats {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
   margin: 25px 0;
   padding: 20px 0;
   border-top: 1px solid var(--light-gray);
@@ -145,6 +147,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .info-grid {
@@ -188,6 +192,9 @@ body {
 
 .tags-container {
   margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .tag {
@@ -196,8 +203,6 @@ body {
   color: var(--primary);
   padding: 6px 15px;
   border-radius: 50px;
-  margin-right: 10px;
-  margin-bottom: 10px;
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -262,12 +267,14 @@ body {
   display: flex;
   color: var(--gray);
   font-size: 0.9rem;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .session-meta span {
-  margin-right: 20px;
   display: flex;
   align-items: center;
+  margin-right: 12px;
 }
 
 .session-meta i {
@@ -276,6 +283,7 @@ body {
 
 .session-actions {
   display: flex;
+  gap: 8px;
 }
 
 .session-btn {
@@ -287,9 +295,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 10px;
   cursor: pointer;
   transition: var(--transition);
+  border: none;
 }
 
 .session-btn:hover {
@@ -305,43 +313,107 @@ body {
   background: var(--primary-dark);
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-  .profile-container {
-    grid-template-columns: 1fr;
-  }
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
+.session-btn.danger {
+  color: #e74c3c;
 }
 
-@media (max-width: 576px) {
-  .session-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .session-date {
-    margin-bottom: 15px;
-  }
-  .session-info {
-    width: 100%;
-    margin-bottom: 15px;
-  }
-  .session-meta {
-    flex-wrap: wrap;
-  }
-  .session-meta span {
-    margin-bottom: 5px;
-  }
-  .session-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
+.session-btn.danger:hover {
+  background: #ffeaea;
 }
 
-/* ...existing styles... */
+/* Bibliothèque intégrée */
+.biblio-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-/* ✅ Styles pour la pagination */
+.biblio-list-item {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.2rem;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.biblio-list-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.biblio-list-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.biblio-list-meta {
+  color: var(--gray);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.biblio-list-details {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.biblio-list-desc {
+  color: #444;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.biblio-list-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.biblio-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.biblio-btn:hover {
+  background: var(--primary-dark);
+}
+
+.biblio-btn.danger {
+  background: #e74c3c;
+}
+
+.biblio-btn.danger:hover {
+  background: #c0392b;
+}
+
+/* Pagination */
 .pagination-container {
   margin-top: 20px;
   display: flex;
@@ -408,16 +480,127 @@ body {
   margin-left: 8px;
 }
 
-/* ✅ Amélioration de la stat des documents */
-.profile-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 colonnes au lieu de 2 */
-  gap: 15px;
-  margin: 25px 0;
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablettes larges */
+@media (max-width: 1200px) {
+  .profile-container {
+    margin: 1.5rem auto;
+    padding: 0 0.8rem;
+  }
+  
+  .profile-picture {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profile-card,
+  .profile-info {
+    padding: 25px;
+  }
 }
 
-/* Responsive pour la pagination */
+/* Tablettes */
+@media (max-width: 992px) {
+  .profile-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin: 1rem auto;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+  
+  .session-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .session-meta span {
+    margin-right: 0;
+  }
+}
+
+/* Mobile large */
 @media (max-width: 768px) {
+  .profile-container {
+    padding: 0 0.5rem;
+    margin: 0.5rem auto;
+  }
+  
+  .profile-card,
+  .profile-info {
+    padding: 20px;
+  }
+  
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .profile-card h2 {
+    font-size: 1.3rem;
+  }
+  
+  .profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .profile-stats .stat-item:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+  
+  .stat-value {
+    font-size: 1.3rem;
+  }
+  
+  .session-card {
+    padding: 15px;
+  }
+  
+  .session-date {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+  }
+  
+  .session-day {
+    font-size: 1.2rem;
+  }
+  
+  .session-month {
+    font-size: 0.7rem;
+  }
+  
+  .session-info h3 {
+    font-size: 1rem;
+  }
+  
+  .biblio-list-item {
+    padding: 1rem;
+  }
+  
+  .biblio-list-title {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .biblio-list-meta,
+  .biblio-list-details {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
   .pagination {
     gap: 4px;
   }
@@ -427,12 +610,165 @@ body {
     height: 35px;
     font-size: 0.8rem;
   }
-  
-  .profile-stats {
-    grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur mobile */
+}
+
+/* Mobile portrait */
+@media (max-width: 576px) {
+  .profile-container {
+    padding: 0 0.3rem;
   }
   
-  .profile-stats .stat-item:nth-child(3) {
-    grid-column: 1 / -1; /* La 3e stat prend toute la largeur */
+  .profile-card,
+  .profile-info {
+    padding: 15px;
+  }
+  
+  .profile-picture {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .edit-picture {
+    width: 28px;
+    height: 28px;
+    bottom: 5px;
+    right: 5px;
+  }
+  
+  .profile-card h2 {
+    font-size: 1.1rem;
+  }
+  
+  .profile-card p {
+    font-size: 0.9rem;
+  }
+  
+  .btn-edit-profile {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+  
+  .section-title {
+    font-size: 1.1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .session-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+  }
+  
+  .session-date {
+    margin-bottom: 10px;
+    margin-right: 0;
+  }
+  
+  .session-info {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .session-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .session-btn {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .info-icon {
+    width: 35px;
+    height: 35px;
+    margin-right: 12px;
+  }
+  
+  .info-content h3 {
+    font-size: 0.9rem;
+  }
+  
+  .info-content p {
+    font-size: 0.9rem;
+  }
+  
+  .tag {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .biblio-list-item {
+    padding: 0.8rem;
+  }
+  
+  .biblio-list-title {
+    font-size: 0.95rem;
+  }
+  
+  .biblio-list-meta,
+  .biblio-list-details,
+  .biblio-list-desc {
+    font-size: 0.85rem;
+  }
+  
+  .biblio-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .pagination-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Très petits écrans */
+@media (max-width: 360px) {
+  .profile-picture {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .edit-picture {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .profile-card h2 {
+    font-size: 1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.1rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+  }
+  
+  .session-btn {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .info-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+  }
+  
+  .biblio-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  .pagination-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
   }
 }
