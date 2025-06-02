@@ -30,28 +30,30 @@ export default function SessionDetail({ user }) {
           <i className="fas fa-arrow-left"></i> Retour au profil
         </button>
         <div className="session-actions">
-          <button className="action-btn" onClick={() => navigate(`/session/${session.id}/edit`)}>
-            <i className="fas fa-edit"></i> Modifier
-          </button>
+          {/* Affiche le bouton Modifier UNIQUEMENT si c'est le créateur */}
           {session.createurId === user.id && (
-            <>
-              <button
-                className="action-btn danger"
-                style={{ marginLeft: 8, color: '#e74c3c' }}
-                onClick={async () => {
-                  if (window.confirm("Voulez-vous vraiment supprimer cette session ?")) {
-                    try {
-                      await axios.delete(`http://localhost:3000/api/sessions/${session.id}`);
-                      navigate('/'); // Redirige vers l'accueil après suppression
-                    } catch (err) {
-                      alert("Erreur lors de la suppression.");
-                    }
+            <button className="action-btn" onClick={() => navigate(`/session/${session.id}/edit`)}>
+              <i className="fas fa-edit"></i> Modifier
+            </button>
+          )}
+          {/* Affiche le bouton Supprimer UNIQUEMENT si c'est le créateur */}
+          {session.createurId === user.id && (
+            <button
+              className="action-btn danger"
+              style={{ marginLeft: 8, color: '#e74c3c' }}
+              onClick={async () => {
+                if (window.confirm("Voulez-vous vraiment supprimer cette session ?")) {
+                  try {
+                    await axios.delete(`http://localhost:3000/api/sessions/${session.id}`);
+                    navigate('/'); // Redirige vers l'accueil après suppression
+                  } catch (err) {
+                    alert("Erreur lors de la suppression.");
                   }
-                }}
-              >
-                <i className="fas fa-trash"></i> Supprimer
-              </button>
-            </>
+                }
+              }}
+            >
+              <i className="fas fa-trash"></i> Supprimer
+            </button>
           )}
           <button className="action-btn primary">
             <i className="fas fa-share-alt"></i> Partager
@@ -157,30 +159,6 @@ export default function SessionDetail({ user }) {
               {/* Ajoute d'autres ressources dynamiquement si tu veux */}
             </div>
           </div>
-
-          {/* Chat (exemple statique) */}
-          <div className="chat-container">
-            <div className="section-title">Discussion de session</div>
-            <div className="chat-messages">
-              <div className="message received">
-                <div className="message-header">
-                  <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Thomas" className="message-avatar" />
-                  <h3>Thomas Martin</h3>
-                  <span className="message-time">14:20</span>
-                </div>
-                <div className="message-content">
-                  Bonjour à tous ! Est-ce que quelqu'un a des exercices supplémentaires sur les arbres AVL ?
-                </div>
-              </div>
-              {/* ...autres messages statiques ou dynamiques... */}
-            </div>
-            <div className="chat-input">
-              <input type="text" placeholder="Écrire un message..." />
-              <button type="submit">
-                <i className="fas fa-paper-plane"></i>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Colonne droite : participants */}
@@ -199,15 +177,6 @@ export default function SessionDetail({ user }) {
                 />
                 <div className="participant-info">
                   <h3>{p.prenom} {p.nom}</h3>
-                  <p>{p.role || 'Participant'}</p>
-                </div>
-                <div className="participant-actions">
-                  <div className="participant-btn">
-                    <i className="fas fa-comment-dots"></i>
-                  </div>
-                  <div className="participant-btn">
-                    <i className="fas fa-user-plus"></i>
-                  </div>
                 </div>
               </div>
             ))}
