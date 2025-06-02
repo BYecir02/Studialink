@@ -200,44 +200,47 @@ export default function Messages({ user }) {
                 </button>
               </div>
             ) : (
-              sessions.map(session => (
-                <div
-                  key={session.id}
-                  className={`conversation-item ${selectedSession === session.id ? 'active' : ''}`}
-                  onClick={() => loadSessionMessages(session.id)}
-                >
-                  <div className="conversation-avatar session-avatar">
-                    <i className="fas fa-users"></i>
-                  </div>
-                  
-                  <div className="conversation-info">
-                    <div className="conversation-name">
-                      {session.titre}
+              sessions.map(session => {
+                
+                return (
+                  <div
+                    key={session.id}
+                    className={`conversation-item ${selectedSession === session.id ? 'active' : ''}`}
+                    onClick={() => loadSessionMessages(session.id)}
+                  >
+                    <div className="conversation-avatar session-avatar">
+                      <i className="fas fa-users"></i>
                     </div>
-                    <div className="conversation-last-message">
-                      {session.lastMessage || 'Aucun message'}
-                    </div>
-                  </div>
-                  
-                  <div className="session-actions">
-                    <button 
-                      className="session-detail-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/session/${session.id}`);
-                      }}
-                      title="Voir les détails"
-                    >
-                      <i className="fas fa-info-circle"></i>
-                    </button>
-                    {session.unreadCount > 0 && (
-                      <div className="conversation-unread">
-                        {session.unreadCount}
+                    
+                    <div className="conversation-info">
+                      <div className="conversation-name">
+                        {session.titre}
                       </div>
-                    )}
+                        <div className="conversation-last-message">
+                          {session.lastMessage || 'Aucun message'}
+                        </div>
+                    </div>
+                    
+                    <div className="session-actions">
+                      <button 
+                        className="session-detail-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/session/${session.id}`);
+                        }}
+                        title="Voir les détails"
+                      >
+                        <i className="fas fa-info-circle"></i>
+                      </button>
+                      {session.unreadCount > 0 && (
+                        <div className="conversation-unread">
+                          {session.unreadCount}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

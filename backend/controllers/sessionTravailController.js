@@ -1,4 +1,4 @@
-const { SessionTravail, Module, Utilisateur, ParticipantSession } = require('../models');
+const { SessionTravail, Module, Utilisateur, ParticipantSession, Message } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getAll = async (req, res) => {
@@ -188,7 +188,23 @@ exports.getAllUserSessions = async (req, res) => {
       if (s) map.set(s.id, s);
     });
 
-    res.json(Array.from(map.values()));
+    // Pour chaque session, on récupère le dernier message
+    const sessionsArray = Array.from(map.values());
+    const sessionsWithLastMessage = await Promise.all(
+      sessionsArray.map(async session => {
+        const lastMsg = await Message.findOne({
+          where: { sessionTravailId: session.id },
+          order: [['date_envoi', 'DESC']]
+        });
+        // On retourne la session + lastMessage (contenu ou null)
+        return {
+          ...session.toJSON(),
+          lastMessage: lastMsg ? lastMsg.contenu : null
+        };
+      })
+    );
+
+    res.json(sessionsWithLastMessage);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
