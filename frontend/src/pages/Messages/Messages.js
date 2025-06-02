@@ -52,7 +52,7 @@ export default function Messages({ user }) {
       loadSessionMessages(Number(sessionId));
       setShowChat(true);
     }
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [location.search, sessions.length]);
 
   // Charger les messages d'une session
@@ -166,6 +166,9 @@ export default function Messages({ user }) {
 
   if (loading) return <div className="messages-loading">Chargement...</div>;
 
+  // Pour le bouton "voir les détails" dans le chat header
+  const currentSession = sessions.find(s => s.id === selectedSession);
+
   return (
     <div className="messages-container">
       <div className="messages-header">
@@ -200,47 +203,44 @@ export default function Messages({ user }) {
                 </button>
               </div>
             ) : (
-              sessions.map(session => {
-                
-                return (
-                  <div
-                    key={session.id}
-                    className={`conversation-item ${selectedSession === session.id ? 'active' : ''}`}
-                    onClick={() => loadSessionMessages(session.id)}
-                  >
-                    <div className="conversation-avatar session-avatar">
-                      <i className="fas fa-users"></i>
+              sessions.map(session => (
+                <div
+                  key={session.id}
+                  className={`conversation-item ${selectedSession === session.id ? 'active' : ''}`}
+                  onClick={() => loadSessionMessages(session.id)}
+                >
+                  <div className="conversation-avatar session-avatar">
+                    <i className="fas fa-users"></i>
+                  </div>
+                  
+                  <div className="conversation-info">
+                    <div className="conversation-name">
+                      {session.titre}
                     </div>
-                    
-                    <div className="conversation-info">
-                      <div className="conversation-name">
-                        {session.titre}
-                      </div>
-                        <div className="conversation-last-message">
-                          {session.lastMessage || 'Aucun message'}
-                        </div>
-                    </div>
-                    
-                    <div className="session-actions">
-                      <button 
-                        className="session-detail-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/session/${session.id}`);
-                        }}
-                        title="Voir les détails"
-                      >
-                        <i className="fas fa-info-circle"></i>
-                      </button>
-                      {session.unreadCount > 0 && (
-                        <div className="conversation-unread">
-                          {session.unreadCount}
-                        </div>
-                      )}
+                    <div className="conversation-last-message">
+                      {session.lastMessage || 'Aucun message'}
                     </div>
                   </div>
-                );
-              })
+                  
+                  <div className="session-actions">
+                    <button 
+                      className="session-detail-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/session/${session.id}`, { state: { from: 'messages' } });
+                      }}
+                      title="Voir les détails"
+                    >
+                      <i className="fas fa-info-circle"></i>
+                    </button>
+                    {session.unreadCount > 0 && (
+                      <div className="conversation-unread">
+                        {session.unreadCount}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>
@@ -268,30 +268,31 @@ export default function Messages({ user }) {
                 <div className="chat-session-info">
                   <div className="chat-contact">
                     <i className="fas fa-users chat-icon"></i>
-                    {sessions.find(s => s.id === selectedSession)?.titre}
+                    {currentSession?.titre}
                   </div>
                   <div className="chat-session-meta">
                     <span>
                       <i className="fas fa-calendar"></i>
-                      {new Date(sessions.find(s => s.id === selectedSession)?.date_heure).toLocaleDateString('fr-FR')}
+                      {currentSession ? new Date(currentSession.date_heure).toLocaleDateString('fr-FR') : ''}
                     </span>
                     <span>
                       <i className="fas fa-map-marker-alt"></i>
-                      {sessions.find(s => s.id === selectedSession)?.en_ligne 
-                        ? 'En ligne' 
-                        : sessions.find(s => s.id === selectedSession)?.lieu || 'Lieu non précisé'
-                      }
+                      {currentSession
+                        ? (currentSession.en_ligne
+                          ? 'En ligne'
+                          : currentSession.lieu || 'Lieu non précisé')
+                        : ''}
                     </span>
                     <span className="participants-count">
                       <i className="fas fa-user-friends"></i>
-                      {sessions.find(s => s.id === selectedSession)?.participants?.length || 0} participants
+                      {currentSession?.participants?.length || 0} participants
                     </span>
                   </div>
                 </div>
                 <div className="chat-actions">
                   <button 
                     className="chat-action-btn"
-                    onClick={() => navigate(`/session/${selectedSession}`)}
+                    onClick={() => currentSession && navigate(`/session/${currentSession.id}`, { state: { from: 'messages', sessionId: currentSession.id } })}
                     title="Voir les détails de la session"
                   >
                     <i className="fas fa-external-link-alt"></i>
@@ -363,7 +364,7 @@ export default function Messages({ user }) {
               {/* Formulaire de message */}
               <div className="message-container-form">
                 <form className="message-input-form" onSubmit={sendMessage}>
-                    <input
+                  <input
                     type="text"
                     value={newMessage}
                     onChange={handleInputChange}
@@ -371,17 +372,17 @@ export default function Messages({ user }) {
                     placeholder="Tapez votre message pour la session..."
                     className="message-input"
                     autoComplete="off"
-                    />
-                    <button 
+                  />
+                  <button 
                     type="submit" 
                     className="send-btn" 
                     disabled={!newMessage.trim()}
                     title="Envoyer le message"
-                    >
+                  >
                     <i className="fas fa-paper-plane"></i>
-                    </button>
+                  </button>
                 </form>
-               </div>
+              </div>
             </>
           )}
         </div>

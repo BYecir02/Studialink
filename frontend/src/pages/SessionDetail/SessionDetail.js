@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './SessionDetail.css';
 
 export default function SessionDetail({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [session, setSession] = useState(null);
 
   useEffect(() => {
@@ -22,12 +23,23 @@ export default function SessionDetail({ user }) {
   const module = session.Module?.nom || 'Non précisé';
   const createur = session.createur || { prenom: 'Inconnu', nom: '' };
 
+  // Gère le retour selon la provenance
+  const handleBack = () => {
+    if (location.state?.from === 'messages' && location.state?.sessionId) {
+      navigate(`/messages?session=${location.state.sessionId}`);
+    } else if (location.state?.from === 'profil') {
+      navigate('/profil');
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <div className="container">
       {/* Header */}
       <div className="header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          <i className="fas fa-arrow-left"></i> Retour au profil
+        <button className="back-btn" onClick={handleBack}>
+          <i className="fas fa-arrow-left"></i> Retour
         </button>
         <div className="session-actions">
           {/* Affiche le bouton Modifier UNIQUEMENT si c'est le créateur */}

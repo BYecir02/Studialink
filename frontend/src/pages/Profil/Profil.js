@@ -150,6 +150,11 @@ export default function Profil({ user }) {
         <button className="btn-edit-profile" onClick={() => navigate('/profil/edit')}>
           <i className="fas fa-edit"></i> Modifier le Profil
         </button>
+        <button
+          className="btn-edit-profile" style={{ marginTop: 10 }} onClick={() => navigate('/profil/parametres')}
+        >
+          <i className="fas fa-cog"></i> Paramètres
+        </button>
       </div>
 
       {/* Colonne droite : infos et sessions */}
@@ -212,7 +217,7 @@ export default function Profil({ user }) {
                   className="session-card"
                   key={session.id}
                   style={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/session/${session.id}`)}
+                  onClick={() => navigate(`/session/${session.id}`, { state: { from: 'profil' } })}
                   title="Voir le détail de la session"
                 >
                   <div className="session-date">
