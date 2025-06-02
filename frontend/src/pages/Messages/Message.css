@@ -961,3 +961,296 @@
     font-size: 0.55rem;
   }
 }
+
+.message-image {
+  margin: 5px 0;
+}
+
+.chat-image {
+  max-width: 300px;
+  max-height: 200px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.chat-image:hover {
+  transform: scale(1.02);
+}
+
+.sending-image {
+  opacity: 0.7;
+}
+
+/* ✅ Styles pour l'aperçu d'image */
+.image-preview-container {
+  padding: 15px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.image-preview {
+  position: relative;
+  display: inline-block;
+}
+
+.preview-image {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.preview-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.preview-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.preview-btn.cancel {
+  background: #dc3545;
+  color: white;
+}
+
+.preview-btn.cancel:hover {
+  background: #c82333;
+}
+
+.preview-btn.send {
+  background: #28a745;
+  color: white;
+}
+
+.preview-btn.send:hover {
+  background: #218838;
+}
+
+/* ✅ Styles pour le bouton image */
+.image-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.image-btn:hover {
+  background: #5a6268;
+  transform: scale(1.05);
+}
+
+/* ✅ Ajustement du formulaire */
+.message-input-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.message-input {
+  flex: 1;
+}
+
+/* ✅ Responsive pour mobile */
+@media (max-width: 768px) {
+  .chat-image {
+    max-width: 250px;
+    max-height: 150px;
+  }
+  
+  .preview-image {
+    max-width: 150px;
+    max-height: 100px;
+  }
+  
+  .image-btn {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* ✅ Styles pour le modal d'image */
+.image-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.image-modal-container {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.image-modal-close {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.image-modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.image-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.image-modal-img {
+  max-width: 85vw;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.3s ease-out;
+}
+
+.image-modal-actions {
+  display: flex;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px 25px;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.image-modal-action {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+}
+
+.image-modal-action:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.image-modal-action i {
+  font-size: 0.8rem;
+}
+
+/* ✅ Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ✅ Responsive pour mobile */
+@media (max-width: 768px) {
+  .image-modal-close {
+    top: -40px;
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .image-modal-img {
+    max-width: 95vw;
+    max-height: 70vh;
+  }
+  
+  .image-modal-actions {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 20px;
+  }
+  
+  .image-modal-action {
+    justify-content: center;
+    padding: 12px 16px;
+  }
+}
+
+/* ✅ Améliorer le style des images dans le chat */
+.chat-image {
+  max-width: 300px;
+  max-height: 200px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.sending-image {
+  opacity: 0.7;
+  filter: grayscale(20%);
+}

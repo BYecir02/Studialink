@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './SessionDetail.css';
@@ -8,12 +8,72 @@ export default function SessionDetail({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [session, setSession] = useState(null);
+  // ✅ Nouvel état pour les images partagées
+  const [sharedImages, setSharedImages] = useState([]);
+  const [loadingImages, setLoadingImages] = useState(true);
+  // ✅ État pour le modal d'image
+  const [imageModal, setImageModal] = useState({ isOpen: false, src: '', alt: '' });
 
   useEffect(() => {
     axios.get(`http://localhost:3000/api/sessions/${id}`)
       .then(res => setSession(res.data))
       .catch(() => setSession(null));
   }, [id]);
+
+  // ✅ Récupérer les images partagées dans cette session
+  useEffect(() => {
+    if (id) {
+      setLoadingImages(true);
+      axios.get(`http://localhost:3000/api/sessions/${id}/messages`)
+        .then(res => {
+          // Filtrer seulement les messages avec des images
+          const images = res.data.filter(msg => 
+            msg.hasAttachment && msg.attachmentType === 'image' && msg.imageUrl
+          );
+          setSharedImages(images);
+          setLoadingImages(false);
+        })
+        .catch(error => {
+          console.error('Erreur récupération images:', error);
+          setSharedImages([]);
+          setLoadingImages(false);
+        });
+    }
+  }, [id]);
+
+  // ✅ Fonctions pour gérer le modal d'image
+  const openImageModal = (src, alt = 'Image partagée') => {
+    setImageModal({ isOpen: true, src, alt });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({ isOpen: false, src: '', alt: '' });
+  };
+
+  // ✅ Fermer le modal avec Échap
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === 'Escape' && imageModal.isOpen) {
+        closeImageModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [imageModal.isOpen]);
+
+  // ✅ Empêcher le scroll du body quand le modal est ouvert
+  useEffect(() => {
+    if (imageModal.isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [imageModal.isOpen]);
 
   if (!session) return <div>Chargement...</div>;
 
@@ -57,7 +117,7 @@ export default function SessionDetail({ user }) {
                 if (window.confirm("Voulez-vous vraiment supprimer cette session ?")) {
                   try {
                     await axios.delete(`http://localhost:3000/api/sessions/${session.id}`);
-                    navigate('/'); // Redirige vers l'accueil après suppression
+                    navigate('/');
                   } catch (err) {
                     alert("Erreur lors de la suppression.");
                   }
@@ -137,39 +197,72 @@ export default function SessionDetail({ user }) {
             <p>{session.description || "Aucune description pour cette session."}</p>
           </div>
 
-          {/* Ressources partagées (exemple statique) */}
+          {/* ✅ Images partagées remplaçant les ressources */}
           <div className="resources-container">
             <div className="section-title">
-              Ressources partagées
-              <button className="action-btn primary">
-                <i className="fas fa-plus"></i> Ajouter
-              </button>
+              Images partagées
+              <span className="images-count">
+                {sharedImages.length} image{sharedImages.length > 1 ? 's' : ''}
+              </span>
             </div>
-            <div className="resource-list">
-              {/* Exemple de ressource */}
-              <div className="resource-item">
-                <div className="resource-icon">
-                  <i className="fas fa-file-pdf"></i>
-                </div>
-                <div className="resource-info">
-                  <h3>Notes de cours - Algorithmes Avancés</h3>
-                  <div className="resource-meta">
-                    <span><i className="fas fa-user"></i> Marie Dubois</span>
-                    <span><i className="fas fa-calendar"></i> 10 Juin 2023</span>
-                    <span><i className="fas fa-weight-hanging"></i> 2.4 Mo</span>
-                  </div>
-                </div>
-                <div className="resource-actions">
-                  <div className="resource-btn">
-                    <i className="fas fa-eye"></i>
-                  </div>
-                  <div className="resource-btn primary">
-                    <i className="fas fa-download"></i>
-                  </div>
-                </div>
+            
+            {loadingImages ? (
+              <div className="loading-images">
+                <i className="fas fa-spinner fa-spin"></i>
+                <span>Chargement des images...</span>
               </div>
-              {/* Ajoute d'autres ressources dynamiquement si tu veux */}
-            </div>
+            ) : sharedImages.length === 0 ? (
+              <div className="no-images">
+                <i className="fas fa-images"></i>
+                <h4>Aucune image partagée</h4>
+                <p>Les images partagées dans les discussions apparaîtront ici.</p>
+                <button 
+                  className="action-btn primary"
+                  onClick={() => navigate(`/messages?session=${session.id}`)}
+                >
+                  <i className="fas fa-comments"></i>
+                  Rejoindre la discussion
+                </button>
+              </div>
+            ) : (
+              <div className="images-grid">
+                {sharedImages.map((message, index) => (
+                  <div 
+                    key={message.id} 
+                    className="image-card"
+                    onClick={() => openImageModal(`http://localhost:3000${message.imageUrl}`, `Image ${index + 1}`)}
+                  >
+                    <div className="image-thumbnail">
+                      <img 
+                        src={`http://localhost:3000${message.imageUrl}`} 
+                        alt={`Image partagée ${index + 1}`}
+                        loading="lazy"
+                      />
+                      <div className="image-overlay">
+                        <i className="fas fa-search-plus"></i>
+                      </div>
+                    </div>
+                    <div className="image-info">
+                      <div className="image-meta">
+                        <span className="image-author">
+                          <i className="fas fa-user"></i>
+                          {message.utilisateur?.prenom} {message.utilisateur?.nom}
+                        </span>
+                        <span className="image-date">
+                          <i className="fas fa-calendar"></i>
+                          {new Date(message.date_envoi).toLocaleDateString('fr-FR')}
+                        </span>
+                      </div>
+                      {message.contenu && message.contenu !== '[Image]' && (
+                        <div className="image-caption">
+                          {message.contenu}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -195,6 +288,54 @@ export default function SessionDetail({ user }) {
           </div>
         </div>
       </div>
+
+      {/* ✅ Modal d'aperçu d'image */}
+      {imageModal.isOpen && (
+        <div className="image-modal-overlay" onClick={closeImageModal}>
+          <div className="image-modal-container">
+            <button 
+              className="image-modal-close"
+              onClick={closeImageModal}
+              title="Fermer (Échap)"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+            
+            <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+              <img 
+                src={imageModal.src} 
+                alt={imageModal.alt}
+                className="image-modal-img"
+              />
+              
+              <div className="image-modal-actions">
+                <button 
+                  className="image-modal-action"
+                  onClick={() => window.open(imageModal.src, '_blank')}
+                  title="Ouvrir dans un nouvel onglet"
+                >
+                  <i className="fas fa-external-link-alt"></i>
+                  Ouvrir
+                </button>
+                
+                <button 
+                  className="image-modal-action"
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = imageModal.src;
+                    link.download = 'image.jpg';
+                    link.click();
+                  }}
+                  title="Télécharger l'image"
+                >
+                  <i className="fas fa-download"></i>
+                  Télécharger
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

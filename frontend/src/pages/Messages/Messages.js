@@ -15,10 +15,35 @@ export default function Messages({ user }) {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
-  const [showChat, setShowChat] = useState(false); // État pour mobile
+  const [showChat, setShowChat] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null); // ✅ État pour l'image sélectionnée
+  const [imagePreview, setImagePreview] = useState(null); // ✅ Aperçu de l'image
+  const [imageModal, setImageModal] = useState({ isOpen: false, src: '', alt: '' });
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null); // ✅ Référence pour l'input file
   const navigate = useNavigate();
   const location = useLocation();
+
+    // ✅ Fonctions pour gérer le modal d'image
+  const openImageModal = (src, alt = 'Image') => {
+    setImageModal({ isOpen: true, src, alt });
+  };
+
+  const closeImageModal = () => {
+    setImageModal({ isOpen: false, src: '', alt: '' });
+  };
+
+  // ✅ Fermer le modal avec la touche Échap
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === 'Escape' && imageModal.isOpen) {
+        closeImageModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [imageModal.isOpen]);
 
   // Auto-scroll vers le bas quand de nouveaux messages arrivent
   const scrollToBottom = () => {
@@ -28,6 +53,106 @@ export default function Messages({ user }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // ✅ Gestion de la sélection d'image
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Vérifier le type de fichier
+      if (!file.type.startsWith('image/')) {
+        alert('Veuillez sélectionner un fichier image.');
+        return;
+      }
+      
+      // Vérifier la taille (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('L\'image ne doit pas dépasser 5MB.');
+        return;
+      }
+
+      setSelectedImage(file);
+      
+      // Créer un aperçu
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // ✅ Annuler la sélection d'image
+  const cancelImageSelection = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // ✅ Envoyer une image
+const sendImage = async () => {
+  if (!selectedImage || !selectedSession) return;
+
+  const formData = new FormData();
+  formData.append('image', selectedImage);
+  formData.append('sessionTravailId', selectedSession);
+  formData.append('expediteurId', user.id);
+  formData.append('contenu', newMessage); // ✅ Ajouter le texte saisi
+
+  // Message temporaire
+  const tempMessage = {
+    id: `temp-image-${Date.now()}`,
+    contenu: newMessage, // ✅ Afficher le texte
+    hasAttachment: true,
+    attachmentType: 'image',
+    utilisateur: { id: user.id, prenom: user.prenom, nom: user.nom },
+    createdAt: new Date().toISOString(),
+    sending: true,
+    imagePreview: imagePreview
+  };
+
+  setMessages(prev => [...prev, tempMessage]);
+  setNewMessage(''); // ✅ Vider le champ texte
+  cancelImageSelection();
+
+    try {
+      // Envoyer l'image au backend
+      const response = await axios.post(
+        `http://localhost:3000/api/sessions/${selectedSession}/messages/image`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      // Remplacer le message temporaire par le message final
+      const finalMessage = {
+        ...response.data,
+        content: response.data.contenu,
+        utilisateur: response.data.utilisateur,
+        createdAt: response.data.date_envoi,
+        sending: false,
+        type: 'image',
+        imageUrl: response.data.imageUrl
+      };
+
+      setMessages(prev => prev.map(m =>
+        m.id === tempMessage.id ? finalMessage : m
+      ));
+
+      // Émettre via Socket.IO pour les autres utilisateurs
+      socket.emit('sendMessage', finalMessage);
+
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'image:', error);
+      // Supprimer le message temporaire en cas d'erreur
+      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
+      alert('Erreur lors de l\'envoi de l\'image.');
+    }
+  };
 
   // Charger les sessions où l'utilisateur participe
   useEffect(() => {
@@ -62,7 +187,6 @@ export default function Messages({ user }) {
 
     axios.get(`http://localhost:3000/api/sessions/${sessionId}/messages`)
       .then(res => {
-        // Adapter les messages pour le front
         const messagesAdapted = res.data.map(msg => ({
           ...msg,
           content: msg.contenu,
@@ -98,11 +222,19 @@ export default function Messages({ user }) {
   const backToConversations = () => {
     setShowChat(false);
     setSelectedSession(null);
+    cancelImageSelection(); // ✅ Nettoyer la sélection d'image
   };
 
-  // Envoi d'un message (Socket.IO + REST fallback)
+  // Envoi d'un message texte (modifié)
   const sendMessage = (e) => {
     e.preventDefault();
+    
+    // Si une image est sélectionnée, envoyer l'image
+    if (selectedImage) {
+      sendImage();
+      return;
+    }
+    
     if (!newMessage.trim() || !selectedSession) return;
 
     const messageData = {
@@ -112,7 +244,6 @@ export default function Messages({ user }) {
       date_envoi: new Date().toISOString()
     };
 
-    // Optimistic update
     const tempMessage = {
       id: `temp-${Date.now()}`,
       content: newMessage,
@@ -125,13 +256,10 @@ export default function Messages({ user }) {
     setMessages(prev => [...prev, tempMessage]);
     setNewMessage('');
 
-    // Envoi en temps réel
     socket.emit('sendMessage', messageData);
 
-    // Fallback REST : on attend que le backend retourne le message complet (avec utilisateur)
     axios.post(`http://localhost:3000/api/sessions/${selectedSession}/messages`, messageData)
       .then(res => {
-        // Adapter la réponse pour le front
         const msg = {
           ...res.data,
           content: res.data.contenu,
@@ -144,7 +272,6 @@ export default function Messages({ user }) {
         ));
       })
       .catch(() => {
-        // En cas d'erreur, on retire le message temporaire
         setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
       });
   };
@@ -166,7 +293,6 @@ export default function Messages({ user }) {
 
   if (loading) return <div className="messages-loading">Chargement...</div>;
 
-  // Pour le bouton "voir les détails" dans le chat header
   const currentSession = sessions.find(s => s.id === selectedSession);
 
   return (
@@ -329,7 +455,49 @@ export default function Messages({ user }) {
                           </div>
                         )}
                         <div className="message-content">
-                          {message.content}
+                          {/* ✅ Afficher le texte s'il existe */}
+                          {message.contenu && message.contenu.trim() && (
+                            <div className="message-text">
+                              {message.contenu}
+                            </div>
+                          )}
+                          
+                          {/* ✅ Afficher l'image si elle existe */}
+                          {message.hasAttachment && message.attachmentType === 'image' && (
+                            <div className="message-image">
+                              {message.sending && message.imagePreview ? (
+                                <img 
+                                  src={message.imagePreview} 
+                                  alt="En cours d'envoi" 
+                                  className="chat-image sending-image"
+                                />
+                              ) : message.imageUrl ? (
+                                <img 
+                                  src={`http://localhost:3000${message.imageUrl}`} 
+                                  alt="Contenu partagé" 
+                                  className="chat-image"
+                                  // ✅ Ouvrir le modal au lieu d'ouvrir dans un nouvel onglet
+                                  onClick={() => openImageModal(`http://localhost:3000${message.imageUrl}`, 'Image partagée')}
+                                />
+                              ) : null}
+                            </div>
+                          )}
+                          
+                          {/* ✅ Autres types de fichiers */}
+                          {message.hasAttachment && message.attachmentType !== 'image' && (
+                            <div className="message-file">
+                              <a 
+                                href={`http://localhost:3000${message.fileUrl}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="file-link"
+                              >
+                                <i className="fas fa-file"></i>
+                                Pièce jointe
+                              </a>
+                            </div>
+                          )}
+                          
                           {message.sending && (
                             <div className="message-sending-indicator">
                               <i className="fas fa-clock"></i>
@@ -361,23 +529,68 @@ export default function Messages({ user }) {
                 )}
               </div>
 
-              {/* Formulaire de message */}
+              {/* ✅ Aperçu de l'image sélectionnée */}
+              {imagePreview && (
+                <div className="image-preview-container">
+                  <div className="image-preview">
+                    <img src={imagePreview} alt="Aperçu" className="preview-image" />
+                    <div className="preview-actions">
+                      <button 
+                        className="preview-btn cancel"
+                        onClick={cancelImageSelection}
+                        title="Annuler"
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                      <button 
+                        className="preview-btn send"
+                        onClick={sendImage}
+                        title="Envoyer l'image"
+                      >
+                        <i className="fas fa-paper-plane"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ✅ Formulaire de message modifié */}
               <div className="message-container-form">
                 <form className="message-input-form" onSubmit={sendMessage}>
+                  {/* ✅ Bouton pour sélectionner une image */}
+                  <button 
+                    type="button"
+                    className="image-btn"
+                    onClick={() => fileInputRef.current?.click()}
+                    title="Envoyer une image"
+                  >
+                    <i className="fas fa-image"></i>
+                  </button>
+                  
+                  {/* ✅ Input file caché */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    style={{ display: 'none' }}
+                  />
+                  
                   <input
                     type="text"
                     value={newMessage}
                     onChange={handleInputChange}
                     onKeyPress={handleKeyPress}
-                    placeholder="Tapez votre message pour la session..."
+                    placeholder={selectedImage ? "Image sélectionnée - cliquez sur Envoyer" : "Tapez votre message pour la session..."}
                     className="message-input"
                     autoComplete="off"
+                    disabled={!!selectedImage} // ✅ Désactiver si image sélectionnée
                   />
                   <button 
                     type="submit" 
                     className="send-btn" 
-                    disabled={!newMessage.trim()}
-                    title="Envoyer le message"
+                    disabled={!newMessage.trim() && !selectedImage}
+                    title={selectedImage ? "Envoyer l'image" : "Envoyer le message"}
                   >
                     <i className="fas fa-paper-plane"></i>
                   </button>
@@ -387,6 +600,53 @@ export default function Messages({ user }) {
           )}
         </div>
       </div>
+      {/* ✅ Modal d'aperçu d'image */}
+      {imageModal.isOpen && (
+        <div className="image-modal-overlay" onClick={closeImageModal}>
+          <div className="image-modal-container">
+            <button 
+              className="image-modal-close"
+              onClick={closeImageModal}
+              title="Fermer (Échap)"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+            
+            <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+              <img 
+                src={imageModal.src} 
+                alt={imageModal.alt}
+                className="image-modal-img"
+              />
+              
+              <div className="image-modal-actions">
+                <button 
+                  className="image-modal-action"
+                  onClick={() => window.open(imageModal.src, '_blank')}
+                  title="Ouvrir dans un nouvel onglet"
+                >
+                  <i className="fas fa-external-link-alt"></i>
+                  Ouvrir
+                </button>
+                
+                <button 
+                  className="image-modal-action"
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = imageModal.src;
+                    link.download = 'image.jpg';
+                    link.click();
+                  }}
+                  title="Télécharger l'image"
+                >
+                  <i className="fas fa-download"></i>
+                  Télécharger
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

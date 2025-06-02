@@ -19,9 +19,14 @@ module.exports = (sequelize, DataTypes) => {
     },
     contenu: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: true // ✅ Peut être null si c'est juste une image
     },
     piece_jointe: DataTypes.STRING,
+    // ✅ Type pour identifier le type de pièce jointe
+    type_piece_jointe: {
+      type: DataTypes.ENUM('image', 'document', 'video', 'audio'),
+      allowNull: true
+    },
     date_envoi: {
       type: DataTypes.DATE,
       allowNull: false
