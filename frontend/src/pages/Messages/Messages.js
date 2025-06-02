@@ -210,7 +210,10 @@ export default function Messages({ user }) {
       ));
 
       // ✅ Émettre APRÈS la sauvegarde
-      socket.emit('sendMessage', finalMessage);
+      socket.emit('sendMessage', {
+        ...finalMessage,
+        sessionTravailId: selectedSession
+      });
 
     } catch (error) {
       console.error('Erreur lors de l\'envoi de l\'image:', error);
@@ -263,7 +266,10 @@ export default function Messages({ user }) {
         sending: false,
         hasAttachment: true,
         attachmentType: 'document',
-        fileUrl: response.data.fileUrl
+        fileUrl: response.data.fileUrl,
+        // ✅ Ajouter les noms de fichiers du backend
+        fileName: response.data.fileName,
+        originalFileName: response.data.originalFileName
       };
 
       setMessages(prev => prev.map(m =>
@@ -271,7 +277,10 @@ export default function Messages({ user }) {
       ));
 
       // ✅ Émettre APRÈS la sauvegarde
-      socket.emit('sendMessage', finalMessage);
+      socket.emit('sendMessage', {
+        ...finalMessage,
+        sessionTravailId: selectedSession
+      });
 
     } catch (error) {
       console.error('Erreur lors de l\'envoi du document:', error);
@@ -407,7 +416,7 @@ export default function Messages({ user }) {
     const tempMessage = {
       id: `temp-${Date.now()}`,
       content: newMessage,
-      contenu: newMessage, // ✅ Ajouter cette ligne
+      contenu: newMessage,
       utilisateur: { id: user.id, prenom: user.prenom, nom: user.nom },
       createdAt: new Date().toISOString(),
       sending: true,
@@ -416,9 +425,6 @@ export default function Messages({ user }) {
 
     setMessages(prev => [...prev, tempMessage]);
     setNewMessage('');
-
-    // ✅ NE PAS émettre ici - seulement APRÈS la sauvegarde
-    // socket.emit('sendMessage', messageData); // ❌ Supprimé
 
     axios.post(`http://localhost:3000/api/sessions/${selectedSession}/messages`, messageData)
       .then(res => {
@@ -435,7 +441,10 @@ export default function Messages({ user }) {
         ));
         
         // ✅ Émettre APRÈS la sauvegarde réussie
-        socket.emit('sendMessage', msg);
+        socket.emit('sendMessage', {
+          ...msg,
+          sessionTravailId: selectedSession
+        });
       })
       .catch(() => {
         setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
@@ -621,8 +630,66 @@ export default function Messages({ user }) {
                           </div>
                         )}
                         <div className="message-content">
-                          {/* Afficher le texte s'il existe */}
-                          {message.contenu && message.contenu.trim() && (
+                          {/* ✅ Afficher les documents avec séparation texte/fichier */}
+                          {message.hasAttachment && message.attachmentType === 'document' && (
+                            <div className="message-document">
+                              {message.sending && message.filePreview ? (
+                                <div className="document-preview sending">
+                                  <div className="document-icon">
+                                    <i className="fas fa-file-alt"></i>
+                                  </div>
+                                  <div className="document-info">
+                                    <div className="document-name">{message.filePreview.name}</div>
+                                    <div className="document-size">{message.filePreview.size}</div>
+                                    <div className="document-status">Envoi en cours...</div>
+                                  </div>
+                                </div>
+                              ) : message.fileUrl ? (
+                                <div className="document-container">
+                                  {/* ✅ Afficher le texte s'il existe et n'est pas juste le nom du fichier */}
+                                  {message.contenu && 
+                                   !message.contenu.startsWith('[') && 
+                                   message.contenu !== `[${message.originalFileName}]` &&
+                                   message.contenu !== `[${message.fileName}]` && (
+                                    <div className="document-message">
+                                      {message.contenu}
+                                    </div>
+                                  )}
+                                  
+                                  {/* ✅ Afficher le fichier avec le vrai nom */}
+                                  <a 
+                                    href={`http://localhost:3000${message.fileUrl}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="document-link"
+                                  >
+                                    <div className="document-icon">
+                                      <i className="fas fa-file-alt"></i>
+                                    </div>
+                                    <div className="document-info">
+                                      <div className="document-name">
+                                        {/* ✅ Utiliser le nom original du fichier */}
+                                        {message.originalFileName || 
+                                         message.fileName || 
+                                         (message.fileUrl ? 
+                                           message.fileUrl.split('/').pop().replace(/^\d+-\d+-/, '') : 
+                                           'Document'
+                                         )}
+                                      </div>
+                                      <div className="document-action">
+                                        <i className="fas fa-download"></i>
+                                        Télécharger
+                                      </div>
+                                    </div>
+                                  </a>
+                                </div>
+                              ) : null}
+                            </div>
+                          )}
+
+                          {/* ✅ Afficher le texte pour les messages normaux */}
+                          {(!message.hasAttachment || message.attachmentType !== 'document') && 
+                           message.contenu && message.contenu.trim() && (
                             <div className="message-text">
                               {message.contenu}
                             </div>
@@ -644,42 +711,6 @@ export default function Messages({ user }) {
                                   className="chat-image"
                                   onClick={() => openImageModal(`http://localhost:3000${message.imageUrl}`, 'Image partagée')}
                                 />
-                              ) : null}
-                            </div>
-                          )}
-                          
-                          {/* Afficher les documents */}
-                          {message.hasAttachment && message.attachmentType === 'document' && (
-                            <div className="message-document">
-                              {message.sending && message.filePreview ? (
-                                <div className="document-preview sending">
-                                  <div className="document-icon">
-                                    <i className="fas fa-file-alt"></i>
-                                  </div>
-                                  <div className="document-info">
-                                    <div className="document-name">{message.filePreview.name}</div>
-                                    <div className="document-size">{message.filePreview.size}</div>
-                                    <div className="document-status">Envoi en cours...</div>
-                                  </div>
-                                </div>
-                              ) : message.fileUrl ? (
-                                <a 
-                                  href={`http://localhost:3000${message.fileUrl}`} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="document-link"
-                                >
-                                  <div className="document-icon">
-                                    <i className="fas fa-file-alt"></i>
-                                  </div>
-                                  <div className="document-info">
-                                    <div className="document-name">{message.contenu.replace(/^\[.*?\]\s*/, '') || 'Document'}</div>
-                                    <div className="document-action">
-                                      <i className="fas fa-download"></i>
-                                      Télécharger
-                                    </div>
-                                  </div>
-                                </a>
                               ) : null}
                             </div>
                           )}
@@ -755,7 +786,7 @@ export default function Messages({ user }) {
                 </div>
               )}
 
-              {/* Aperçu du document sélectionné */}
+              {/* ✅ Aperçu du document sélectionné avec texte */}
               {filePreview && (
                 <div className="file-preview-container">
                   <div className="file-preview">
@@ -768,6 +799,12 @@ export default function Messages({ user }) {
                         <span className="file-type">{filePreview.type}</span>
                         <span className="file-size">{filePreview.size}</span>
                       </div>
+                      {/* ✅ Aperçu du message qui sera envoyé */}
+                      {newMessage.trim() && (
+                        <div className="file-message-preview">
+                          💬 "{newMessage}"
+                        </div>
+                      )}
                     </div>
                     <div className="file-actions">
                       <button 
@@ -832,21 +869,21 @@ export default function Messages({ user }) {
                     onChange={handleInputChange}
                     onKeyPress={handleKeyPress}
                     placeholder={
-                      selectedImage ? "Image sélectionnée - cliquez sur Envoyer" :
-                      selectedFile ? "Document sélectionné - cliquez sur Envoyer" :
+                      selectedImage ? "Ajoutez un message à votre image..." :
+                      selectedFile ? "Ajoutez un message à votre document..." :
                       "Tapez votre message pour la session..."
                     }
                     className="message-input"
                     autoComplete="off"
-                    disabled={!!selectedImage || !!selectedFile}
+                    disabled={false}
                   />
                   <button 
                     type="submit" 
                     className="send-btn" 
                     disabled={!newMessage.trim() && !selectedImage && !selectedFile}
                     title={
-                      selectedImage ? "Envoyer l'image" :
-                      selectedFile ? "Envoyer le document" :
+                      selectedImage ? "Envoyer l'image avec le message" :
+                      selectedFile ? "Envoyer le document avec le message" :
                       "Envoyer le message"
                     }
                   >

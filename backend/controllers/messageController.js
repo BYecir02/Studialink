@@ -64,6 +64,10 @@ exports.getMessagesBySession = async (req, res) => {
       attachmentType: msg.type_piece_jointe,
       imageUrl: msg.type_piece_jointe === 'image' ? msg.piece_jointe : null,
       fileUrl: msg.piece_jointe,
+      // ✅ Ajouter le nom original du fichier pour les documents
+      originalFileName: msg.piece_jointe ? 
+        msg.piece_jointe.split('/').pop().replace(/^\d+-\d+-/, '') : 
+        null,
       // ✅ Pour compatibilité avec le frontend actuel
       type: msg.type_piece_jointe === 'image' ? 'image' : 'text',
       utilisateur: msg.expediteur,
@@ -89,7 +93,7 @@ exports.getMessagesBySession = async (req, res) => {
 exports.uploadImage = async (req, res) => {
   try {
     const { sessionId } = req.params;
-    const { expediteurId, contenu } = req.body; // ✅ Contenu optionnel
+    const { expediteurId, contenu } = req.body;
     
     if (!req.file) {
       return res.status(400).json({ error: 'Aucun fichier image fourni' });
@@ -103,9 +107,9 @@ exports.uploadImage = async (req, res) => {
     });
 
     const message = await Message.create({
-      contenu: contenu || '[Image]', // ✅ Texte accompagnant l'image ou placeholder
-      piece_jointe: `/uploads/${req.file.filename}`, // ✅ Utiliser piece_jointe
-      type_piece_jointe: 'image', // ✅ Type de la pièce jointe
+      contenu: contenu || '[Image]',
+      piece_jointe: `/uploads/${req.file.filename}`,
+      type_piece_jointe: 'image',
       sessionTravailId: sessionId,
       expediteurId: expediteurId,
       date_envoi: new Date()
@@ -126,8 +130,8 @@ exports.uploadImage = async (req, res) => {
       ...messageWithUser.toJSON(),
       contenu: messageWithUser.contenu,
       utilisateur: messageWithUser.expediteur,
-      imageUrl: messageWithUser.piece_jointe, // ✅ Pour compatibilité frontend
-      type: 'image', // ✅ Pour compatibilité frontend
+      imageUrl: messageWithUser.piece_jointe,
+      type: 'image',
       hasAttachment: true,
       attachmentType: 'image'
     });
@@ -137,7 +141,7 @@ exports.uploadImage = async (req, res) => {
   }
 };
 
-// ✅ Upload de fichiers généraux (pour extension future)
+// ✅ Upload de fichiers/documents (UNIQUE - supprimé la duplication)
 exports.uploadFile = async (req, res) => {
   try {
     const { sessionId } = req.params;
@@ -146,6 +150,14 @@ exports.uploadFile = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'Aucun fichier fourni' });
     }
+
+    console.log('Upload fichier:', {
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      size: req.file.size,
+      mimetype: req.file.mimetype,
+      contenu: contenu
+    });
 
     // Déterminer le type de fichier
     let fileType = 'document';
@@ -166,12 +178,24 @@ exports.uploadFile = async (req, res) => {
       include: [{ model: Utilisateur, as: 'expediteur', attributes: ['id', 'prenom', 'nom'] }]
     });
 
+    console.log('Message avec fichier créé:', {
+      id: messageWithUser.id,
+      contenu: messageWithUser.contenu,
+      piece_jointe: messageWithUser.piece_jointe,
+      type_piece_jointe: messageWithUser.type_piece_jointe,
+      originalname: req.file.originalname
+    });
+
     res.json({
       ...messageWithUser.toJSON(),
+      contenu: messageWithUser.contenu,
       utilisateur: messageWithUser.expediteur,
       fileUrl: messageWithUser.piece_jointe,
       hasAttachment: true,
-      attachmentType: fileType
+      attachmentType: fileType,
+      // ✅ AJOUTER le nom original du fichier
+      fileName: req.file.originalname,
+      originalFileName: req.file.originalname
     });
   } catch (error) {
     console.error('Erreur upload fichier:', error);
@@ -204,55 +228,6 @@ exports.deleteMessage = async (req, res) => {
     res.json({ message: 'Message supprimé avec succès' });
   } catch (error) {
     console.error('Erreur suppression message:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-exports.uploadFile = async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    const { expediteurId, contenu } = req.body;
-    
-    if (!req.file) {
-      return res.status(400).json({ error: 'Aucun fichier fourni' });
-    }
-
-    console.log('Upload fichier:', {
-      filename: req.file.filename,
-      originalname: req.file.originalname,
-      size: req.file.size,
-      mimetype: req.file.mimetype
-    });
-
-    // Déterminer le type de fichier
-    let fileType = 'document';
-    if (req.file.mimetype.startsWith('image/')) fileType = 'image';
-    else if (req.file.mimetype.startsWith('video/')) fileType = 'video';
-    else if (req.file.mimetype.startsWith('audio/')) fileType = 'audio';
-
-    const message = await Message.create({
-      contenu: contenu || `[${req.file.originalname}]`,
-      piece_jointe: `/uploads/${req.file.filename}`,
-      type_piece_jointe: fileType,
-      sessionTravailId: sessionId,
-      expediteurId: expediteurId,
-      date_envoi: new Date()
-    });
-
-    const messageWithUser = await Message.findByPk(message.id, {
-      include: [{ model: Utilisateur, as: 'expediteur', attributes: ['id', 'prenom', 'nom'] }]
-    });
-
-    res.json({
-      ...messageWithUser.toJSON(),
-      contenu: messageWithUser.contenu,
-      utilisateur: messageWithUser.expediteur,
-      fileUrl: messageWithUser.piece_jointe,
-      hasAttachment: true,
-      attachmentType: fileType
-    });
-  } catch (error) {
-    console.error('Erreur upload fichier:', error);
     res.status(500).json({ error: error.message });
   }
 };

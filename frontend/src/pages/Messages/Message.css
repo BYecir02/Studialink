@@ -1425,3 +1425,293 @@
     align-self: flex-end;
   }
 }
+
+/* Style pour séparer texte et document */
+.document-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+/* Style pour le message texte dans un document */
+.document-message {
+  padding: 8px 12px;
+  background: rgba(24, 119, 242, 0.1);
+  border-radius: 12px;
+  font-size: 0.95em;
+  line-height: 1.4;
+  color: #1877f2;
+  border-left: 3px solid #1877f2;
+  margin-bottom: 6px;
+}
+
+/* Pour les messages envoyés */
+.message.sent .document-message {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  border-left-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Style pour l'aperçu du message dans la sélection */
+.file-message-preview {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: #e3f2fd;
+  border-radius: 8px;
+  font-size: 0.85em;
+  color: #1976d2;
+  border-left: 3px solid #2196f3;
+  animation: messagePreview 0.3s ease-out;
+}
+
+/* Animation pour l'aperçu */
+@keyframes messagePreview {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ✅ AMÉLIORATION DU STYLE DES DOCUMENTS */
+
+/* Document link amélioré */
+.document-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.document-link:hover {
+  background: #e9ecef;
+  border-color: #4e54c8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Document link dans les messages envoyés */
+.message.sent .document-link {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.message.sent .document-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.message.sent .document-name {
+  color: white;
+}
+
+.message.sent .document-action {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ✅ ICÔNES DE FICHIERS PAR TYPE */
+
+/* Icône PDF */
+.document-icon.pdf {
+  background: #dc3545;
+}
+
+/* Icône Word */
+.document-icon.word {
+  background: #2b579a;
+}
+
+/* Icône Excel */
+.document-icon.excel {
+  background: #107c41;
+}
+
+/* Icône PowerPoint */
+.document-icon.powerpoint {
+  background: #d24726;
+}
+
+/* Icône Texte */
+.document-icon.text {
+  background: #6c757d;
+}
+
+/* ✅ AMÉLIORATION DE L'APERÇU DE FICHIER */
+
+.file-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.file-preview:hover {
+  border-color: #4e54c8;
+  box-shadow: 0 4px 12px rgba(78, 84, 200, 0.15);
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.95rem;
+}
+
+.file-details {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.file-type {
+  background: #4e54c8;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.file-size {
+  background: #e9ecef;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* ✅ RESPONSIVE POUR LES NOUVEAUX ÉLÉMENTS */
+
+@media (max-width: 768px) {
+  .document-container {
+    gap: 6px;
+  }
+  
+  .document-message {
+    padding: 6px 10px;
+    font-size: 0.9em;
+  }
+  
+  .file-message-preview {
+    padding: 5px 8px;
+    font-size: 0.8em;
+  }
+  
+  .file-preview {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .file-name {
+    font-size: 0.9rem;
+  }
+  
+  .file-details {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .document-link {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .document-info {
+    text-align: center;
+  }
+  
+  .file-preview {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .file-actions {
+    align-self: center;
+  }
+}
+
+/* ✅ ANIMATION POUR LES NOUVEAUX MESSAGES AVEC DOCUMENTS */
+
+.message.document-message {
+  animation: documentSlide 0.4s ease-out;
+}
+
+@keyframes documentSlide {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ✅ ÉTATS DE FOCUS ET ACCESSIBILITÉ */
+
+.document-link:focus {
+  outline: 2px solid #4e54c8;
+  outline-offset: 2px;
+}
+
+.file-message-preview:focus-within {
+  box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.15);
+}
+
+/* ✅ DARK MODE SUPPORT (optionnel) */
+
+@media (prefers-color-scheme: dark) {
+  .document-message {
+    background: rgba(24, 119, 242, 0.2);
+    color: #64b5f6;
+    border-left-color: #64b5f6;
+  }
+  
+  .file-message-preview {
+    background: rgba(33, 150, 243, 0.15);
+    color: #90caf9;
+    border-left-color: #64b5f6;
+  }
+  
+  .document-link {
+    background: #2c3e50;
+    border-color: #34495e;
+    color: #ecf0f1;
+  }
+  
+  .document-link:hover {
+    background: #34495e;
+    border-color: #64b5f6;
+  }
+}
