@@ -28,22 +28,22 @@ exports.getAll = async (req, res) => {
 
 exports.getOne = async (req, res) => {
   try {
-  const session = await SessionTravail.findByPk(req.params.id, {
-    include: [
-      { model: Module },
-      { model: Utilisateur, as: 'createur' },
-      {
-        model: ParticipantSession,
-        as: 'participants',
-        include: [{ model: Utilisateur }]
-      }
-    ]
-  });
-  if (!session) return res.status(404).json({ error: 'Session non trouvée' });
-  // Pour simplifier côté front
-  const sessionJson = session.toJSON();
-  sessionJson.participants = sessionJson.participants.map(p => p.Utilisateur);
-  res.json(sessionJson);
+    const session = await SessionTravail.findByPk(req.params.id, {
+      include: [
+        { model: Module },
+        { model: Utilisateur, as: 'createur' },
+        {
+          model: ParticipantSession,
+          as: 'participants',
+          include: [{ model: Utilisateur }]
+        }
+      ]
+    });
+    if (!session) return res.status(404).json({ error: 'Session non trouvée' });
+    // Pour simplifier côté front
+    const sessionJson = session.toJSON();
+    sessionJson.participants = sessionJson.participants.map(p => p.Utilisateur);
+    res.json(sessionJson);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -114,6 +114,7 @@ exports.addParticipant = async (req, res) => {
   }
 };
 
+// Recherche avancée de sessions
 exports.search = async (req, res) => {
   const { titre, matiere, en_ligne, date } = req.query;
   const where = {};
@@ -159,5 +160,36 @@ exports.removeParticipant = async (req, res) => {
   } catch (err) {
     console.error('Erreur lors de la suppression du participant:', err);
     res.status(500).json({ error: err.message });
+  }
+};
+
+// Sessions où l'utilisateur est créateur OU participant (fusion sans doublons)
+exports.getAllUserSessions = async (req, res) => {
+  const userId = Number(req.params.id);
+  try {
+    // Sessions créées par l'utilisateur
+    const sessionsCreees = await SessionTravail.findAll({
+      where: { createurId: userId },
+      include: [{ model: Module }, { model: Utilisateur, as: 'createur' }]
+    });
+    // Sessions où il est participant
+    const participations = await ParticipantSession.findAll({
+      where: { utilisateurId: userId },
+      include: [{
+        model: SessionTravail,
+        include: [{ model: Module }, { model: Utilisateur, as: 'createur' }]
+      }]
+    });
+    const sessionsParticipations = participations.map(p => p.SessionTravail);
+
+    // Fusion sans doublons (par id)
+    const map = new Map();
+    sessionsCreees.concat(sessionsParticipations).forEach(s => {
+      if (s) map.set(s.id, s);
+    });
+
+    res.json(Array.from(map.values()));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

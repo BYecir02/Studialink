@@ -236,7 +236,14 @@ export default function Profil({ user }) {
                     <div className="session-btn" title="Détails" onClick={e => { e.stopPropagation(); navigate(`/session/${session.id}`); }}>
                       <i className="fas fa-info-circle"></i>
                     </div>
-                    <div className="session-btn primary" title="Chat" onClick={e => { e.stopPropagation(); navigate(`/session/${session.id}/chat`); }}>
+                    <div
+                      className="session-btn primary"
+                      title="Chat"
+                      onClick={e => {
+                        e.stopPropagation();
+                        navigate(`/messages?session=${session.id}`);
+                      }}
+                    >
                       <i className="fas fa-comments"></i>
                     </div>
                     {session.createurId === user.id && (

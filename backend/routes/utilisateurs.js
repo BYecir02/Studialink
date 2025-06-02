@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { Op } = require('sequelize');
 const { Utilisateur, SessionTravail, ParticipantSession, Module } = require('../models');
+const sessionTravailController = require('../controllers/sessionTravailController');
 
+// Recherche d'utilisateurs
 router.get('/', async (req, res) => {
   const search = req.query.search;
   try {
@@ -24,6 +26,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Sessions où l'utilisateur participe
 router.get('/:id/sessions', async (req, res) => {
   try {
     const participations = await ParticipantSession.findAll({
@@ -42,6 +45,7 @@ router.get('/:id/sessions', async (req, res) => {
   }
 });
 
+// Modules suivis par l'utilisateur
 router.get('/:id/modules-suivis', async (req, res) => {
   try {
     const user = await Utilisateur.findByPk(req.params.id, {
@@ -60,6 +64,7 @@ router.get('/:id/modules-suivis', async (req, res) => {
   }
 });
 
+// Mise à jour du profil utilisateur
 router.put('/:id', async (req, res) => {
   try {
     const user = await Utilisateur.findByPk(req.params.id);
@@ -84,5 +89,8 @@ router.put('/:id', async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+
+// Sessions où l'utilisateur est créateur OU participant (fusion sans doublons)
+router.get('/:id/toutes-sessions', sessionTravailController.getAllUserSessions);
 
 module.exports = router;
