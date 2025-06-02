@@ -64,23 +64,31 @@ app.get('/api/route/protegee', auth, (req, res) => {
 io.on('connection', (socket) => {
   console.log('Un utilisateur est connecté');
 
-  socket.on('sendMessage', async (messageData) => {
+  // ✅ Rejoindre une session (room)
+  socket.on('joinSession', (sessionId) => {
+    socket.join(`session-${sessionId}`);
+    console.log(`Utilisateur rejoint la session ${sessionId}`);
+  });
+
+  // ✅ Quitter une session
+  socket.on('leaveSession', (sessionId) => {
+    socket.leave(`session-${sessionId}`);
+    console.log(`Utilisateur quitte la session ${sessionId}`);
+  });
+
+  // ✅ SOLUTION : Juste diffuser, ne pas sauvegarder
+  socket.on('sendMessage', (messageData) => {
     try {
-      // Sauvegarde le message en base
-      const message = await Message.create(messageData);
-
-      // Récupère l'expéditeur complet
-      const expediteur = await Utilisateur.findByPk(message.expediteurId, {
-        attributes: ['id', 'prenom', 'nom']
+      console.log('Message reçu pour diffusion:', messageData);
+      
+      // ✅ Diffuser uniquement aux utilisateurs de cette session
+      socket.to(`session-${messageData.sessionTravailId}`).emit('receiveMessage', {
+        ...messageData,
+        date_envoi: messageData.createdAt || messageData.date_envoi
       });
-
-      // Diffuse le message sauvegardé à tous les clients avec l'objet utilisateur
-      io.emit('receiveMessage', {
-        ...message.toJSON(),
-        utilisateur: expediteur
-      });
+      
     } catch (error) {
-      console.error('Erreur lors de l\'enregistrement du message :', error);
+      console.error('Erreur lors de la diffusion du message :', error);
     }
   });
 

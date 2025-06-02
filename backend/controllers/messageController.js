@@ -207,3 +207,52 @@ exports.deleteMessage = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.uploadFile = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const { expediteurId, contenu } = req.body;
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'Aucun fichier fourni' });
+    }
+
+    console.log('Upload fichier:', {
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      size: req.file.size,
+      mimetype: req.file.mimetype
+    });
+
+    // Déterminer le type de fichier
+    let fileType = 'document';
+    if (req.file.mimetype.startsWith('image/')) fileType = 'image';
+    else if (req.file.mimetype.startsWith('video/')) fileType = 'video';
+    else if (req.file.mimetype.startsWith('audio/')) fileType = 'audio';
+
+    const message = await Message.create({
+      contenu: contenu || `[${req.file.originalname}]`,
+      piece_jointe: `/uploads/${req.file.filename}`,
+      type_piece_jointe: fileType,
+      sessionTravailId: sessionId,
+      expediteurId: expediteurId,
+      date_envoi: new Date()
+    });
+
+    const messageWithUser = await Message.findByPk(message.id, {
+      include: [{ model: Utilisateur, as: 'expediteur', attributes: ['id', 'prenom', 'nom'] }]
+    });
+
+    res.json({
+      ...messageWithUser.toJSON(),
+      contenu: messageWithUser.contenu,
+      utilisateur: messageWithUser.expediteur,
+      fileUrl: messageWithUser.piece_jointe,
+      hasAttachment: true,
+      attachmentType: fileType
+    });
+  } catch (error) {
+    console.error('Erreur upload fichier:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
