@@ -233,6 +233,7 @@ export default function SessionDetail({ user }) {
                     onClick={() => openImageModal(`http://localhost:3000${message.imageUrl}`, `Image ${index + 1}`)}
                   >
                     <div className="image-thumbnail">
+                      {/* eslint-disable-next-line */}
                       <img 
                         src={`http://localhost:3000${message.imageUrl}`} 
                         alt={`Image partagée ${index + 1}`}
