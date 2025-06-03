@@ -8,9 +8,12 @@ export default function SessionDetail({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [session, setSession] = useState(null);
-  // ✅ Nouvel état pour les images partagées
+  // ✅ États pour les images partagées
   const [sharedImages, setSharedImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(true);
+  // ✅ NOUVEAUX ÉTATS pour les documents partagés
+  const [sharedDocuments, setSharedDocuments] = useState([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(true);
   // ✅ État pour le modal d'image
   const [imageModal, setImageModal] = useState({ isOpen: false, src: '', alt: '' });
 
@@ -20,26 +23,80 @@ export default function SessionDetail({ user }) {
       .catch(() => setSession(null));
   }, [id]);
 
-  // ✅ Récupérer les images partagées dans cette session
+  // ✅ Récupérer les images ET documents partagés dans cette session
   useEffect(() => {
     if (id) {
       setLoadingImages(true);
+      setLoadingDocuments(true);
+      
       axios.get(`http://localhost:3000/api/sessions/${id}/messages`)
         .then(res => {
-          // Filtrer seulement les messages avec des images
+          // Filtrer les images
           const images = res.data.filter(msg => 
             msg.hasAttachment && msg.attachmentType === 'image' && msg.imageUrl
           );
           setSharedImages(images);
           setLoadingImages(false);
+          
+          // ✅ Filtrer les documents
+          const documents = res.data.filter(msg => 
+            msg.hasAttachment && msg.attachmentType === 'document' && msg.fileUrl
+          );
+          setSharedDocuments(documents);
+          setLoadingDocuments(false);
         })
         .catch(error => {
-          console.error('Erreur récupération images:', error);
+          console.error('Erreur récupération fichiers:', error);
           setSharedImages([]);
+          setSharedDocuments([]);
           setLoadingImages(false);
+          setLoadingDocuments(false);
         });
     }
   }, [id]);
+
+  // ✅ Fonction pour déterminer le type de fichier et l'icône
+  const getFileTypeInfo = (fileUrl) => {
+    const extension = fileUrl.split('.').pop().toLowerCase();
+    
+    switch (extension) {
+      case 'pdf':
+        return { type: 'PDF', icon: 'fas fa-file-pdf', color: '#dc3545' };
+      case 'doc':
+      case 'docx':
+        return { type: 'Word', icon: 'fas fa-file-word', color: '#2b579a' };
+      case 'xls':
+      case 'xlsx':
+        return { type: 'Excel', icon: 'fas fa-file-excel', color: '#107c41' };
+      case 'ppt':
+      case 'pptx':
+        return { type: 'PowerPoint', icon: 'fas fa-file-powerpoint', color: '#d24726' };
+      case 'txt':
+        return { type: 'Texte', icon: 'fas fa-file-alt', color: '#6c757d' };
+      default:
+        return { type: 'Document', icon: 'fas fa-file', color: '#17a2b8' };
+    }
+  };
+
+  // ✅ Fonction pour obtenir le nom original du fichier
+  const getOriginalFileName = (message) => {
+    // Utiliser originalFileName si disponible, sinon extraire du fileUrl
+    if (message.originalFileName) {
+      return message.originalFileName;
+    }
+    
+    if (message.fileName) {
+      return message.fileName;
+    }
+    
+    if (message.fileUrl) {
+      // Enlever le timestamp du début du nom de fichier
+      const fileName = message.fileUrl.split('/').pop();
+      return fileName.replace(/^\d+-\d+-/, '');
+    }
+    
+    return 'Document sans nom';
+  };
 
   // ✅ Fonctions pour gérer le modal d'image
   const openImageModal = (src, alt = 'Image partagée') => {
@@ -197,7 +254,7 @@ export default function SessionDetail({ user }) {
             <p>{session.description || "Aucune description pour cette session."}</p>
           </div>
 
-          {/* ✅ Images partagées remplaçant les ressources */}
+          {/* ✅ Images partagées */}
           <div className="resources-container">
             <div className="section-title">
               Images partagées
@@ -262,6 +319,102 @@ export default function SessionDetail({ user }) {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* ✅ NOUVELLE SECTION : Documents partagés */}
+          <div className="documents-container">
+            <div className="section-title">
+              Documents partagés
+              <span className="documents-count">
+                {sharedDocuments.length} document{sharedDocuments.length > 1 ? 's' : ''}
+              </span>
+            </div>
+            
+            {loadingDocuments ? (
+              <div className="loading-documents">
+                <i className="fas fa-spinner fa-spin"></i>
+                <span>Chargement des documents...</span>
+              </div>
+            ) : sharedDocuments.length === 0 ? (
+              <div className="no-documents">
+                <i className="fas fa-file-alt"></i>
+                <h4>Aucun document partagé</h4>
+                <p>Les documents partagés dans les discussions apparaîtront ici.</p>
+                <button 
+                  className="action-btn primary"
+                  onClick={() => navigate(`/messages?session=${session.id}`)}
+                >
+                  <i className="fas fa-comments"></i>
+                  Rejoindre la discussion
+                </button>
+              </div>
+            ) : (
+              <div className="documents-list">
+                {sharedDocuments.map((message, index) => {
+                  const fileInfo = getFileTypeInfo(message.fileUrl);
+                  const originalName = getOriginalFileName(message);
+                  
+                  return (
+                    <div key={message.id} className="document-card">
+                      <div className="document-main">
+                        <div 
+                          className="document-icon-container"
+                          style={{ backgroundColor: fileInfo.color }}
+                        >
+                          <i className={fileInfo.icon}></i>
+                        </div>
+                        
+                        <div className="document-details">
+                          <div className="document-name-container">
+                            <h4 className="document-title">{originalName}</h4>
+                            <span className="document-type-badge">{fileInfo.type}</span>
+                          </div>
+                          
+                          {/* Afficher le message texte s'il existe */}
+                          {message.contenu && 
+                           !message.contenu.startsWith('[') && 
+                           message.contenu !== `[${originalName}]` && (
+                            <div className="document-message-text">
+                              💬 "{message.contenu}"
+                            </div>
+                          )}
+                          
+                          <div className="document-meta">
+                            <span className="document-author">
+                              <i className="fas fa-user"></i>
+                              {message.utilisateur?.prenom} {message.utilisateur?.nom}
+                            </span>
+                            <span className="document-date">
+                              <i className="fas fa-calendar"></i>
+                              {new Date(message.date_envoi).toLocaleDateString('fr-FR')}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="document-actions">
+                          <a 
+                            href={`http://localhost:3000${message.fileUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="document-download-btn"
+                            title="Télécharger le document"
+                          >
+                            <i className="fas fa-download"></i>
+                          </a>
+                          <button 
+                            className="document-view-btn"
+                            onClick={() => window.open(`http://localhost:3000${message.fileUrl}`, '_blank')}
+                            title="Ouvrir le document"
+                          >
+                            <i className="fas fa-external-link-alt"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -832,3 +832,330 @@ body {
     gap: 8px;
   }
 }
+
+.documents-container {
+  margin-top: 2rem;
+}
+
+.documents-count {
+  background: #e8f5e8;
+  color: #2e7d32;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.loading-documents {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2rem;
+  color: #6c757d;
+  justify-content: center;
+}
+
+.loading-documents i {
+  font-size: 1.2rem;
+  color: #4e54c8;
+}
+
+.no-documents {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+}
+
+.no-documents i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.4;
+  color: #17a2b8;
+}
+
+.no-documents h4 {
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.no-documents p {
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* ✅ Liste des documents */
+.documents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.document-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #4e54c8;
+}
+
+.document-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+}
+
+.document-icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.document-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.document-name-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.document-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  word-break: break-word;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+.document-type-badge {
+  background: #4e54c8;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.document-message-text {
+  background: #f0f8ff;
+  border-left: 3px solid #4e54c8;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.document-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: #6c757d;
+  flex-wrap: wrap;
+}
+
+.document-author,
+.document-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.document-author {
+  font-weight: 600;
+  color: #4e54c8;
+}
+
+.document-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: flex-start;
+}
+
+.document-download-btn,
+.document-view-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.document-download-btn {
+  background: #28a745;
+  color: white;
+}
+
+.document-download-btn:hover {
+  background: #218838;
+  transform: scale(1.1);
+  color: white;
+}
+
+.document-view-btn {
+  background: #17a2b8;
+  color: white;
+}
+
+.document-view-btn:hover {
+  background: #138496;
+  transform: scale(1.1);
+}
+
+/* ✅ RESPONSIVE POUR LES DOCUMENTS */
+
+@media (max-width: 768px) {
+  .document-main {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .document-icon-container {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    align-self: flex-start;
+  }
+  
+  .document-name-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .document-title {
+    font-size: 0.95rem;
+  }
+  
+  .document-actions {
+    flex-direction: row;
+    align-self: flex-end;
+    margin-top: -10px;
+  }
+  
+  .document-download-btn,
+  .document-view-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
+  }
+  
+  .document-meta {
+    gap: 12px;
+    font-size: 0.75rem;
+  }
+  
+  .documents-count {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .document-card {
+    border-radius: 8px;
+  }
+  
+  .document-main {
+    padding: 10px;
+  }
+  
+  .document-title {
+    font-size: 0.9rem;
+  }
+  
+  .document-message-text {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+  
+  .document-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* ✅ ANIMATION POUR LES DOCUMENTS */
+.document-card {
+  animation: documentFadeIn 0.4s ease-out;
+}
+
+@keyframes documentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ✅ ICÔNES SPÉCIFIQUES PAR TYPE DE FICHIER */
+.document-icon-container .fa-file-pdf {
+  color: white;
+}
+
+.document-icon-container .fa-file-word {
+  color: white;
+}
+
+.document-icon-container .fa-file-excel {
+  color: white;
+}
+
+.document-icon-container .fa-file-powerpoint {
+  color: white;
+}
+
+.document-icon-container .fa-file-alt {
+  color: white;
+}
+
+/* ✅ ÉTATS DE FOCUS POUR L'ACCESSIBILITÉ */
+.document-download-btn:focus,
+.document-view-btn:focus {
+  outline: 2px solid #4e54c8;
+  outline-offset: 2px;
+}
