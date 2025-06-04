@@ -170,3 +170,18 @@
     gap: 0.3rem;
   }
 }
+
+.accueil-list-item {
+  /* ...existing styles... */
+  transition: all 0.2s ease; /* ✅ AJOUTÉ : transition pour l'hover */
+}
+
+.accueil-list-item:hover {
+  background: #f8f9fa; /* ✅ AJOUTÉ : effet hover */
+  transform: translateY(-2px); /* ✅ AJOUTÉ : légère élévation */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* ✅ AJOUTÉ : ombre au survol */
+}
+
+.accueil-list-item:active {
+  transform: translateY(0); /* ✅ AJOUTÉ : effet clic */
+}

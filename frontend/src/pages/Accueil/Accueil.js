@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Accueil.css';
 
 export default function Accueil({ user }) {
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState([]);
   const [participations, setParticipations] = useState([]);
 
@@ -44,7 +46,14 @@ export default function Accueil({ user }) {
   // Fonction utilitaire pour afficher une session
   function renderSession(session, showCreateur = false) {
     return (
-      <li className="accueil-list-item" key={session.id}>
+      <li 
+        className="accueil-list-item" 
+        key={session.id}
+        onClick={() => navigate(`/session/${session.id}`, { 
+          state: { from: 'home' } // ✅ AJOUTÉ : indiquer la provenance
+        })}
+        style={{ cursor: 'pointer' }} // ✅ AJOUTÉ : indiquer que c'est cliquable
+      >
         <div className="accueil-list-main">
           <span className="accueil-list-title">
             <i className="fas fa-book"></i> {session.titre}
