@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Accueil.css';
+import Calendar from '../../components/Calendar/Calendar';
 
 export default function Accueil({ user }) {
   const navigate = useNavigate();
@@ -43,84 +44,29 @@ export default function Accueil({ user }) {
       new Date(s.date_heure) > now
   );
 
-  // Fonction utilitaire pour afficher une session
-  function renderSession(session, showCreateur = false) {
-    return (
-      <li 
-        className="accueil-list-item" 
-        key={session.id}
-        onClick={() => navigate(`/session/${session.id}`, { 
-          state: { from: 'home' } // ✅ AJOUTÉ : indiquer la provenance
-        })}
-        style={{ cursor: 'pointer' }} // ✅ AJOUTÉ : indiquer que c'est cliquable
-      >
-        <div className="accueil-list-main">
-          <span className="accueil-list-title">
-            <i className="fas fa-book"></i> {session.titre}
-          </span>
-          <span className="accueil-list-date">
-            <i className="fas fa-calendar-alt"></i>
-            {new Date(session.date_heure).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
-            &nbsp;à&nbsp;
-            {new Date(session.date_heure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        </div>
-        <div className="accueil-list-details">
-          <span className="accueil-list-module">
-            <i className="fas fa-layer-group"></i> {session.Module?.nom}
-          </span>
-          <span className="accueil-list-lieu">
-            <i className="fas fa-map-marker-alt"></i> {session.en_ligne ? session.lien_en_ligne || 'En ligne' : session.lieu || session.salle || 'Non précisé'}
-          </span>
-          <span className="accueil-list-participants">
-            <i className="fas fa-users"></i>
-            {session.participants ? session.participants.length : 0}
-            /
-            {session.max_participants ?? '-'} participants
-          </span>
-          {showCreateur && session.createur && (
-            <span className="accueil-list-createur">
-              <i className="fas fa-user"></i>
-              {session.createurId === user.id
-                ? ' Créé par moi'
-                : ` Créé par ${session.createur.prenom} ${session.createur.nom}`}
-            </span>
-          )}
-        </div>
-      </li>
-    );
-  }
+  // Toutes les sessions pour le composant Calendar
+  const allSessions = [...mesSessionsAVenir, ...autresSessionsPubliques];
 
   return (
     <div className="accueil-container">
       <div className="accueil-header">
         <h2>Bienvenue {user.prenom} {user.nom} !</h2>
-        <p>Vous êtes connecté.</p>
+        <p>Découvrez et organisez vos sessions d'étude collaboratives.</p>
       </div>
 
-      <section className="accueil-section">
-        <h3>Mes sessions de travail à venir</h3>
-        {mesSessionsAVenir.length === 0 ? (
-          <p className="accueil-empty">Aucune session à venir.</p>
-        ) : (
-          <ul className="accueil-list">
-            {mesSessionsAVenir.map(session =>
-              renderSession(session, true)
-            )}
-          </ul>
-        )}
-      </section>
-
-      <section className="accueil-section">
-        <h3>Autres sessions publiques à venir</h3>
-        {autresSessionsPubliques.length === 0 ? (
-          <p className="accueil-empty">Aucune session publique à venir.</p>
-        ) : (
-          <ul className="accueil-list">
-            {autresSessionsPubliques.map(session => renderSession(session, true))}
-          </ul>
-        )}
-      </section>
+      {/* ✅ Remplacé par le composant Calendar */}
+      <Calendar
+        sessions={allSessions}
+        user={user}
+        context="home"
+        showFilters={true}
+        defaultView="list"
+        onSessionClick={(session) => {
+          navigate(`/session/${session.id}`, { 
+            state: { from: 'home' } 
+          });
+        }}
+      />
     </div>
   );
 }

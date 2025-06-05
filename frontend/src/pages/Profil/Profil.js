@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Calendar from '../../components/Calendar/Calendar'; // ✅ Import du composant Calendar
 import './Profil.css';
 
 function formatDate(dateString) {
@@ -27,15 +28,10 @@ export default function Profil({ user }) {
   
   const navigate = useNavigate();
 
-  const handleDeleteSession = async (sessionId) => {
-    if (window.confirm("Voulez-vous vraiment supprimer cette session ?")) {
-      try {
-        await axios.delete(`http://localhost:3000/api/sessions/${sessionId}`);
-        setSessionsCreees(sessionsCreees.filter(s => s.id !== sessionId));
-      } catch (err) {
-        alert("Erreur lors de la suppression.");
-      }
-    }
+  // ✅ Gestionnaire de suppression pour Calendar
+  const handleSessionDeleted = (sessionId) => {
+    setSessionsCreees(prev => prev.filter(s => s.id !== sessionId));
+    setParticipations(prev => prev.filter(s => s.id !== sessionId));
   };
 
   const handleDeleteRessource = async (ressourceId) => {
@@ -90,7 +86,7 @@ export default function Profil({ user }) {
   // ✅ Fonction pour changer de page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Fusionne sans doublons (par id)
+  // ✅ Fusionne toutes les sessions pour le Calendar
   const mesSessions = [
     ...sessionsCreees,
     ...participations.filter(
@@ -204,80 +200,22 @@ export default function Profil({ user }) {
           )}
         </div>
 
-        <div className="sessions-container">
-          <div className="section-title">Mes prochaines sessions</div>
-          {mesSessions.length === 0 ? (
-            <p>Aucune session créée.</p>
-          ) : (
-            mesSessions
-              .filter(s => new Date(s.date_heure) > new Date())
-              .sort((a, b) => new Date(a.date_heure) - new Date(b.date_heure))
-              .map(session => (
-                <div
-                  className="session-card"
-                  key={session.id}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/session/${session.id}`, { state: { from: 'profil' } })}
-                  title="Voir le détail de la session"
-                >
-                  <div className="session-date">
-                    <span className="session-day">{new Date(session.date_heure).getDate()}</span>
-                    <span className="session-month">{new Date(session.date_heure).toLocaleString('fr-FR', { month: 'short' })}</span>
-                  </div>
-                  <div className="session-info">
-                    <h3>{session.titre}</h3>
-                    <div className="session-meta">
-                      <span>
-                        <i className="fas fa-clock"></i>
-                        {new Date(session.date_heure).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                      <span>
-                        <i className="fas fa-map-marker-alt"></i>
-                        {session.en_ligne ? session.lien_en_ligne || 'En ligne' : session.lieu || session.salle || 'Non précisé'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="session-actions">
-                    <div className="session-btn" title="Détails" onClick={e => { e.stopPropagation(); navigate(`/session/${session.id}`); }}>
-                      <i className="fas fa-info-circle"></i>
-                    </div>
-                    <div
-                      className="session-btn primary"
-                      title="Chat"
-                      onClick={e => {
-                        e.stopPropagation();
-                        navigate(`/messages?session=${session.id}`);
-                      }}
-                    >
-                      <i className="fas fa-comments"></i>
-                    </div>
-                    {session.createurId === user.id && (
-                      <>
-                        <div
-                          className="session-btn"
-                          title="Modifier"
-                          onClick={e => { e.stopPropagation(); navigate(`/session/${session.id}/edit`); }}
-                        >
-                          <i className="fas fa-edit"></i>
-                        </div>
-                        <div
-                          className="session-btn danger"
-                          title="Supprimer"
-                          style={{ color: '#e74c3c' }}
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleDeleteSession(session.id);
-                          }}
-                        >
-                          <i className="fas fa-trash"></i>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))
-          )}
-        </div>
+        {/* ✅ REMPLACEMENT : Composant Calendar au lieu de la liste manuelle */}
+        <div className="section-title">Mes sessions à venir</div>
+        <Calendar
+          sessions={mesSessions}
+          user={user}
+          context="profile"
+          showFilters={false}
+          defaultView="list"
+          onSessionDeleted={handleSessionDeleted}
+          onSessionClick={(session) => {
+            navigate(`/session/${session.id}`, { 
+              state: { from: 'profile' } 
+            });
+          }}
+          className="profile-calendar"
+        />
 
         {/* ✅ Section : Mes documents postés avec pagination */}
         <div className="section-title" style={{marginTop: 32}}>

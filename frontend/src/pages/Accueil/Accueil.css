@@ -1,4 +1,4 @@
-/* Modern list style with icons pour Accueil */
+/* Modern style pour la page Accueil avec composant Calendar */
 .accueil-header {
   text-align: center;
   margin-bottom: 2.5rem;
@@ -8,180 +8,67 @@
   margin-bottom: 0.5rem;
   font-size: 2rem;
   color: #1976d2;
+  font-weight: 700;
 }
 
 .accueil-header p {
-  color: #555;
+  color: #64748b;
   font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .accueil-container {
-  max-width: 1500px; /* Limite la largeur pour un rendu agréable */
+  max-width: 1400px;
   margin: 2.5rem auto;
   padding: 0 1rem;
 }
 
-.accueil-section {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 20px rgba(25, 118, 210, 0.08);
-  padding: 2rem 1.5rem;
-  margin-bottom: 2.5rem;
-  text-align: left;
-}
-
-.accueil-section h3 {
-  color: #1976d2;
-  margin-bottom: 1.5rem;
-  font-size: 1.3rem;
-  font-weight: 600;
-}
-
-.accueil-empty {
-  color: #888;
-  font-style: italic;
-  margin: 1.5rem 0;
-}
-
-.accueil-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.accueil-list-item {
-  background: #f6f8fa;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  padding: 1rem 1.2rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1.5rem;
-  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.06);
-  font-size: 1rem;
-}
-
-.accueil-list-item i {
-  color: #1976d2;
-  margin-right: 7px;
-  font-size: 1.08em;
-}
-
-.accueil-list-date {
-  min-width: 180px;
-  font-weight: 500;
-}
-
-.accueil-list-title {
-  flex: 1 1 180px;
-  font-weight: 600;
-  color: #1976d2;
-}
-
-.accueil-list-module,
-.accueil-list-lieu,
-.accueil-list-createur {
-  flex: 1 1 120px;
-  color: #555;
-}
-
-@media (max-width: 700px) {
-  .accueil-list-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    font-size: 0.98rem;
-  }
-}
-
-.accueil-list-item {
-  background: #f6f8fa;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  padding: 1rem 1.2rem;
-  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.06);
-  font-size: 1rem;
-}
-
-.accueil-list-main {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 0.5rem;
-  align-items: center;
-}
-
-.accueil-list-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1976d2;
-  display: flex;
-  align-items: center;
-}
-
-.accueil-list-date {
-  color: #555;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.accueil-list-details {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* module, lieu, participants, créateur */
-  gap: 1.2rem;
-  font-size: 0.98rem;
-  color: #555;
-  width: 100%;
-}
-
-.accueil-list-details span,
-.accueil-list-main span {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.accueil-list-participants i,
-.accueil-list-createur i,
-.accueil-list-module i,
-.accueil-list-lieu i {
-  margin-right: 6px;
-  color: #1976d2;
-}
-
+/* Responsive pour la page Accueil */
 @media (max-width: 900px) {
-  .accueil-list-details {
-    grid-template-columns: repeat(2, 1fr);
+  .accueil-container {
+    margin: 2rem auto;
+    padding: 0 0.75rem;
   }
-  .accueil-list-main {
-    grid-template-columns: 1fr;
+  
+  .accueil-header h2 {
+    font-size: 1.75rem;
+  }
+  
+  .accueil-header p {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 600px) {
-  .accueil-list-details,
-  .accueil-list-main {
-    grid-template-columns: 1fr;
-    gap: 0.3rem;
+  .accueil-container {
+    margin: 1.5rem auto;
+    padding: 0 0.5rem;
+  }
+  
+  .accueil-header {
+    margin-bottom: 2rem;
+  }
+  
+  .accueil-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .accueil-header p {
+    font-size: 0.95rem;
   }
 }
 
-.accueil-list-item {
-  /* ...existing styles... */
-  transition: all 0.2s ease; /* ✅ AJOUTÉ : transition pour l'hover */
-}
-
-.accueil-list-item:hover {
-  background: #f8f9fa; /* ✅ AJOUTÉ : effet hover */
-  transform: translateY(-2px); /* ✅ AJOUTÉ : légère élévation */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* ✅ AJOUTÉ : ombre au survol */
-}
-
-.accueil-list-item:active {
-  transform: translateY(0); /* ✅ AJOUTÉ : effet clic */
+@media (max-width: 480px) {
+  .accueil-container {
+    margin: 1rem auto;
+    padding: 0 0.25rem;
+  }
+  
+  .accueil-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .accueil-header h2 {
+    font-size: 1.25rem;
+  }
 }
