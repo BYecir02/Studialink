@@ -23,37 +23,50 @@ export default function SessionDetail({ user }) {
       .catch(() => setSession(null));
   }, [id]);
 
-  // ✅ Récupérer les images ET documents partagés dans cette session
+  // ✅ Récupérer les images ET documents partagés dans cette session (seulement si l'utilisateur a accès)
   useEffect(() => {
-    if (id) {
-      setLoadingImages(true);
-      setLoadingDocuments(true);
-      
-      axios.get(`http://localhost:3000/api/sessions/${id}/messages`)
-        .then(res => {
-          // Filtrer les images
-          const images = res.data.filter(msg => 
-            msg.hasAttachment && msg.attachmentType === 'image' && msg.imageUrl
-          );
-          setSharedImages(images);
-          setLoadingImages(false);
-          
-          // ✅ Filtrer les documents
-          const documents = res.data.filter(msg => 
-            msg.hasAttachment && msg.attachmentType === 'document' && msg.fileUrl
-          );
-          setSharedDocuments(documents);
-          setLoadingDocuments(false);
-        })
-        .catch(error => {
-          console.error('Erreur récupération fichiers:', error);
-          setSharedImages([]);
-          setSharedDocuments([]);
-          setLoadingImages(false);
-          setLoadingDocuments(false);
-        });
+    if (id && session) {
+      const participants = session.participants || [];
+      const isCreator = session.createurId === user.id;
+      const isParticipant = participants.some(p => p.id === user.id);
+      const hasAccess = isCreator || isParticipant;
+
+      if (hasAccess) {
+        setLoadingImages(true);
+        setLoadingDocuments(true);
+        
+        axios.get(`http://localhost:3000/api/sessions/${id}/messages`)
+          .then(res => {
+            // Filtrer les images
+            const images = res.data.filter(msg => 
+              msg.hasAttachment && msg.attachmentType === 'image' && msg.imageUrl
+            );
+            setSharedImages(images);
+            setLoadingImages(false);
+            
+            // ✅ Filtrer les documents
+            const documents = res.data.filter(msg => 
+              msg.hasAttachment && msg.attachmentType === 'document' && msg.fileUrl
+            );
+            setSharedDocuments(documents);
+            setLoadingDocuments(false);
+          })
+          .catch(error => {
+            console.error('Erreur récupération fichiers:', error);
+            setSharedImages([]);
+            setSharedDocuments([]);
+            setLoadingImages(false);
+            setLoadingDocuments(false);
+          });
+      } else {
+        // Pas d'accès, ne pas charger les fichiers
+        setSharedImages([]);
+        setSharedDocuments([]);
+        setLoadingImages(false);
+        setLoadingDocuments(false);
+      }
     }
-  }, [id]);
+  }, [id, session, user.id]);
 
   // ✅ Fonction pour déterminer le type de fichier et l'icône
   const getFileTypeInfo = (fileUrl) => {
@@ -139,6 +152,33 @@ export default function SessionDetail({ user }) {
   const maxPlaces = session.max_participants || 10;
   const module = session.Module?.nom || 'Non précisé';
   const createur = session.createur || { prenom: 'Inconnu', nom: '' };
+
+  // ✅ Vérifier si l'utilisateur est participant ou créateur
+  const isCreator = session.createurId === user.id;
+  const isParticipant = participants.some(p => p.id === user.id);
+  const hasAccess = isCreator || isParticipant;
+
+  // ✅ Fonction pour rejoindre la session
+  const handleJoinSession = async () => {
+    try {
+      await axios.post(`http://localhost:3000/api/sessions/${session.id}/join`, {
+        userId: user.id
+      });
+      
+      // Recharger les données de la session pour mettre à jour la liste des participants
+      const response = await axios.get(`http://localhost:3000/api/sessions/${id}`);
+      setSession(response.data);
+      
+      alert('Vous avez rejoint la session avec succès !');
+    } catch (error) {
+      console.error('Erreur lors de l\'inscription:', error);
+      if (error.response?.status === 400) {
+        alert(error.response.data.message || 'Impossible de rejoindre cette session');
+      } else {
+        alert('Erreur lors de l\'inscription à la session');
+      }
+    }
+  };
 
   // Gère le retour selon la provenance
   const handleBack = () => {
@@ -254,170 +294,226 @@ export default function SessionDetail({ user }) {
             <p>{session.description || "Aucune description pour cette session."}</p>
           </div>
 
-          {/* ✅ Images partagées */}
-          <div className="resources-container">
-            <div className="section-title">
-              Images partagées
-              <span className="images-count">
-                {sharedImages.length} image{sharedImages.length > 1 ? 's' : ''}
-              </span>
-            </div>
-            
-            {loadingImages ? (
-              <div className="loading-images">
-                <i className="fas fa-spinner fa-spin"></i>
-                <span>Chargement des images...</span>
-              </div>
-            ) : sharedImages.length === 0 ? (
-              <div className="no-images">
-                <i className="fas fa-images"></i>
-                <h4>Aucune image partagée</h4>
-                <p>Les images partagées dans les discussions apparaîtront ici.</p>
-                <button 
-                  className="action-btn primary"
-                  onClick={() => navigate(`/messages?session=${session.id}`)}
-                >
-                  <i className="fas fa-comments"></i>
-                  Rejoindre la discussion
-                </button>
-              </div>
-            ) : (
-              <div className="images-grid">
-                {sharedImages.map((message, index) => (
-                  <div 
-                    key={message.id} 
-                    className="image-card"
-                    onClick={() => openImageModal(`http://localhost:3000${message.imageUrl}`, `Image ${index + 1}`)}
-                  >
-                    <div className="image-thumbnail">
-                      {/* eslint-disable-next-line */}
-                      <img 
-                        src={`http://localhost:3000${message.imageUrl}`} 
-                        alt={`Image partagée ${index + 1}`}
-                        loading="lazy"
-                      />
-                      <div className="image-overlay">
-                        <i className="fas fa-search-plus"></i>
-                      </div>
-                    </div>
-                    <div className="image-info">
-                      <div className="image-meta">
-                        <span className="image-author">
-                          <i className="fas fa-user"></i>
-                          {message.utilisateur?.prenom} {message.utilisateur?.nom}
-                        </span>
-                        <span className="image-date">
-                          <i className="fas fa-calendar"></i>
-                          {new Date(message.date_envoi).toLocaleDateString('fr-FR')}
-                        </span>
-                      </div>
-                      {message.contenu && message.contenu !== '[Image]' && (
-                        <div className="image-caption">
-                          {message.contenu}
-                        </div>
-                      )}
-                    </div>
+          {/* ✅ Affichage conditionnel des sections de partage */}
+          {hasAccess ? (
+            <>
+              {/* ✅ Images partagées */}
+              <div className="resources-container">
+                <div className="section-title">
+                  Images partagées
+                  <span className="images-count">
+                    {sharedImages.length} image{sharedImages.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+                
+                {loadingImages ? (
+                  <div className="loading-images">
+                    <i className="fas fa-spinner fa-spin"></i>
+                    <span>Chargement des images...</span>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ✅ NOUVELLE SECTION : Documents partagés */}
-          <div className="documents-container">
-            <div className="section-title">
-              Documents partagés
-              <span className="documents-count">
-                {sharedDocuments.length} document{sharedDocuments.length > 1 ? 's' : ''}
-              </span>
-            </div>
-            
-            {loadingDocuments ? (
-              <div className="loading-documents">
-                <i className="fas fa-spinner fa-spin"></i>
-                <span>Chargement des documents...</span>
-              </div>
-            ) : sharedDocuments.length === 0 ? (
-              <div className="no-documents">
-                <i className="fas fa-file-alt"></i>
-                <h4>Aucun document partagé</h4>
-                <p>Les documents partagés dans les discussions apparaîtront ici.</p>
-                <button 
-                  className="action-btn primary"
-                  onClick={() => navigate(`/messages?session=${session.id}`)}
-                >
-                  <i className="fas fa-comments"></i>
-                  Rejoindre la discussion
-                </button>
-              </div>
-            ) : (
-              <div className="documents-list">
-                {sharedDocuments.map((message, index) => {
-                  const fileInfo = getFileTypeInfo(message.fileUrl);
-                  const originalName = getOriginalFileName(message);
-                  
-                  return (
-                    <div key={message.id} className="document-card">
-                      <div className="document-main">
-                        <div 
-                          className="document-icon-container"
-                          style={{ backgroundColor: fileInfo.color }}
-                        >
-                          <i className={fileInfo.icon}></i>
-                        </div>
-                        
-                        <div className="document-details">
-                          <div className="document-name-container">
-                            <h4 className="document-title">{originalName}</h4>
-                            <span className="document-type-badge">{fileInfo.type}</span>
+                ) : sharedImages.length === 0 ? (
+                  <div className="no-images">
+                    <i className="fas fa-images"></i>
+                    <h4>Aucune image partagée</h4>
+                    <p>Les images partagées dans les discussions apparaîtront ici.</p>
+                    <button 
+                      className="action-btn primary"
+                      onClick={() => navigate(`/messages?session=${session.id}`)}
+                    >
+                      <i className="fas fa-comments"></i>
+                      Rejoindre la discussion
+                    </button>
+                  </div>
+                ) : (
+                  <div className="images-grid">
+                    {sharedImages.map((message, index) => (
+                      <div 
+                        key={message.id} 
+                        className="image-card"
+                        onClick={() => openImageModal(`http://localhost:3000${message.imageUrl}`, `Image ${index + 1}`)}
+                      >
+                        <div className="image-thumbnail">
+                          {/* eslint-disable-next-line */}
+                          <img 
+                            src={`http://localhost:3000${message.imageUrl}`} 
+                            alt={`Image partagée ${index + 1}`}
+                            loading="lazy"
+                          />
+                          <div className="image-overlay">
+                            <i className="fas fa-search-plus"></i>
                           </div>
-                          
-                          {/* Afficher le message texte s'il existe */}
-                          {message.contenu && 
-                           !message.contenu.startsWith('[') && 
-                           message.contenu !== `[${originalName}]` && (
-                            <div className="document-message-text">
-                              💬 "{message.contenu}"
-                            </div>
-                          )}
-                          
-                          <div className="document-meta">
-                            <span className="document-author">
+                        </div>
+                        <div className="image-info">
+                          <div className="image-meta">
+                            <span className="image-author">
                               <i className="fas fa-user"></i>
                               {message.utilisateur?.prenom} {message.utilisateur?.nom}
                             </span>
-                            <span className="document-date">
+                            <span className="image-date">
                               <i className="fas fa-calendar"></i>
                               {new Date(message.date_envoi).toLocaleDateString('fr-FR')}
                             </span>
                           </div>
-                        </div>
-                        
-                        <div className="document-actions">
-                          <a 
-                            href={`http://localhost:3000${message.fileUrl}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="document-download-btn"
-                            title="Télécharger le document"
-                          >
-                            <i className="fas fa-download"></i>
-                          </a>
-                          <button 
-                            className="document-view-btn"
-                            onClick={() => window.open(`http://localhost:3000${message.fileUrl}`, '_blank')}
-                            title="Ouvrir le document"
-                          >
-                            <i className="fas fa-external-link-alt"></i>
-                          </button>
+                          {message.contenu && message.contenu !== '[Image]' && (
+                            <div className="image-caption">
+                              {message.contenu}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+
+              {/* ✅ Documents partagés */}
+              <div className="documents-container">
+                <div className="section-title">
+                  Documents partagés
+                  <span className="documents-count">
+                    {sharedDocuments.length} document{sharedDocuments.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+                
+                {loadingDocuments ? (
+                  <div className="loading-documents">
+                    <i className="fas fa-spinner fa-spin"></i>
+                    <span>Chargement des documents...</span>
+                  </div>
+                ) : sharedDocuments.length === 0 ? (
+                  <div className="no-documents">
+                    <i className="fas fa-file-alt"></i>
+                    <h4>Aucun document partagé</h4>
+                    <p>Les documents partagés dans les discussions apparaîtront ici.</p>
+                    <button 
+                      className="action-btn primary"
+                      onClick={() => navigate(`/messages?session=${session.id}`)}
+                    >
+                      <i className="fas fa-comments"></i>
+                      Rejoindre la discussion
+                    </button>
+                  </div>
+                ) : (
+                  <div className="documents-list">
+                    {sharedDocuments.map((message, index) => {
+                      const fileInfo = getFileTypeInfo(message.fileUrl);
+                      const originalName = getOriginalFileName(message);
+                      
+                      return (
+                        <div key={message.id} className="document-card">
+                          <div className="document-main">
+                            <div 
+                              className="document-icon-container"
+                              style={{ backgroundColor: fileInfo.color }}
+                            >
+                              <i className={fileInfo.icon}></i>
+                            </div>
+                            
+                            <div className="document-details">
+                              <div className="document-name-container">
+                                <h4 className="document-title">{originalName}</h4>
+                                <span className="document-type-badge">{fileInfo.type}</span>
+                              </div>
+                              
+                              {/* Afficher le message texte s'il existe */}
+                              {message.contenu && 
+                               !message.contenu.startsWith('[') && 
+                               message.contenu !== `[${originalName}]` && (
+                                <div className="document-message-text">
+                                  💬 "{message.contenu}"
+                                </div>
+                              )}
+                              
+                              <div className="document-meta">
+                                <span className="document-author">
+                                  <i className="fas fa-user"></i>
+                                  {message.utilisateur?.prenom} {message.utilisateur?.nom}
+                                </span>
+                                <span className="document-date">
+                                  <i className="fas fa-calendar"></i>
+                                  {new Date(message.date_envoi).toLocaleDateString('fr-FR')}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="document-actions">
+                              <a 
+                                href={`http://localhost:3000${message.fileUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="document-download-btn"
+                                title="Télécharger le document"
+                              >
+                                <i className="fas fa-download"></i>
+                              </a>
+                              <button 
+                                className="document-view-btn"
+                                onClick={() => window.open(`http://localhost:3000${message.fileUrl}`, '_blank')}
+                                title="Ouvrir le document"
+                              >
+                                <i className="fas fa-external-link-alt"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            /* ✅ Section pour les non-participants */
+            <div className="join-session-container">
+              <div className="join-session-card">
+                <div className="join-session-icon">
+                  <i className="fas fa-users"></i>
+                </div>
+                <div className="join-session-content">
+                  <h3>Rejoignez cette session d'étude</h3>
+                  <p>Pour accéder aux discussions, images et documents partagés, vous devez d'abord rejoindre cette session.</p>
+                  
+                  <div className="session-info-preview">
+                    <div className="info-preview-item">
+                      <i className="fas fa-calendar"></i>
+                      <span>{new Date(session.date_heure).toLocaleDateString('fr-FR', { 
+                        day: '2-digit', 
+                        month: 'long', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</span>
+                    </div>
+                    <div className="info-preview-item">
+                      <i className="fas fa-users"></i>
+                      <span>{participants.length}/{maxPlaces} participants</span>
+                    </div>
+                    {session.en_ligne && (
+                      <div className="info-preview-item">
+                        <i className="fas fa-video"></i>
+                        <span>Session en ligne</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {participants.length < maxPlaces ? (
+                    <button 
+                      className="join-session-btn"
+                      onClick={handleJoinSession}
+                    >
+                      <i className="fas fa-user-plus"></i>
+                      Rejoindre la session
+                    </button>
+                  ) : (
+                    <div className="session-full">
+                      <i className="fas fa-exclamation-triangle"></i>
+                      <span>Cette session est complète</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Colonne droite : participants */}
